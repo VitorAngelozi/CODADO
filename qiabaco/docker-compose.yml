@@ -1,0 +1,49 @@
+# docker-compose.yml
+# Para rodar Qiabaco + PostgreSQL (futuro)
+
+version: '3.8'
+
+services:
+  # Servidor API (Go + Gin)
+  api:
+    container_name: qiabaco-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=debug
+      # - DB_HOST=postgres
+      # - DB_PORT=5432
+      # - DB_NAME=qiabaco
+      # - DB_USER=postgres
+      # - DB_PASSWORD=postgres
+    # Descomente quando tiver banco
+    # depends_on:
+    #   - postgres
+    # networks:
+    #   - qiabaco-network
+
+  # PostgreSQL (descomente quando precisar)
+  # postgres:
+  #   container_name: qiabaco-db
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_DB: qiabaco
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+  #   networks:
+  #     - qiabaco-network
+
+# volumes:
+#   postgres_data:
+
+# networks:
+#   qiabaco-network:
+#     driver: bridge
