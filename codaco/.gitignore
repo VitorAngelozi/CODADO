@@ -1,12 +1,4 @@
 .DS_Store
-*.exe
-*.dll
-*.so
-*.dylib
-bin/
-dist/
-vendor/
-go.sum
 *.log
 .env
 .idea/
@@ -14,3 +6,6 @@ go.sum
 *.swo
 *~
 .vscode/
+node_modules/
+coverage/
+dist/

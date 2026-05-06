@@ -1,11 +1,10 @@
 node_modules/
+frontend/node_modules/
 npm-debug.log
-git
+.git
 .gitignore
 README.md
 .env
 .DS_Store
 *.log
-bin/
 dist/
-vendor/
