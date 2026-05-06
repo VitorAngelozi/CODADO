@@ -17,8 +17,8 @@ function QuestionCard({ challenge, selectedIndex, onSelect }) {
             <button
               key={`${challenge.id}_${idx}`}
               onClick={() => onSelect(idx)}
-              className={`terminal-panel px-4 py-4 text-left text-sm tracking-[0.02em] transition duration-200 hover:border-[var(--accent)] ${
-                isSelected ? 'border-[var(--accent)]' : ''
+              className={`terminal-panel px-4 py-4 text-left text-sm tracking-[0.02em] transition duration-200 hover:border-[var(--accent)] hover:bg-[rgba(217,211,200,0.08)] hover:shadow-[0_0_0_1px_rgba(217,211,200,0.35)] focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:bg-[rgba(217,211,200,0.1)] focus-visible:shadow-[0_0_0_2px_rgba(217,211,200,0.45)] ${
+                isSelected ? 'border-[var(--accent)] bg-[rgba(217,211,200,0.1)] shadow-[0_0_0_1px_rgba(217,211,200,0.35)]' : ''
               }`}
             >
               <span className="ascii-muted mr-2">{`[${String(idx + 1).padStart(2, '0')}]`}</span>

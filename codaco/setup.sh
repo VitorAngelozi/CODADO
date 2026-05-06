@@ -3,56 +3,35 @@
 # Script para setup inicial do Qiabaco
 # Execute: bash setup.sh
 
-echo "🎯 Qiabaco - Setup Inicial"
-echo "=========================="
+echo "Qiabaco - Setup Inicial"
+echo "======================="
 echo ""
 
-# Verificar Go
-echo "1️⃣  Verificando Go..."
-if ! command -v go &> /dev/null; then
-    echo "❌ Go não está instalado!"
-    echo "   Baixe em: https://golang.org/dl/"
+echo "1. Verificando Node.js..."
+if ! command -v node >/dev/null 2>&1; then
+    echo "Node.js nao esta instalado."
     exit 1
 fi
-echo "✅ Go encontrado: $(go version)"
+echo "Node encontrado: $(node --version)"
 echo ""
 
-# Baixar dependências
-echo "2️⃣  Baixando dependências..."
-if go mod download; then
-    echo "✅ Dependências baixadas"
+echo "2. Verificando npm..."
+if ! command -v npm >/dev/null 2>&1; then
+    echo "npm nao esta instalado."
+    exit 1
+fi
+echo "npm encontrado: $(npm --version)"
+echo ""
+
+echo "3. Instalando dependencias..."
+if npm install; then
+    echo "Dependencias instaladas"
 else
-    echo "❌ Erro ao baixar dependências"
+    echo "Erro ao instalar dependencias"
     exit 1
 fi
 echo ""
 
-# Sincronizar dependências
-echo "3️⃣  Sincronizando dependências..."
-if go mod tidy; then
-    echo "✅ Dependências sincronizadas"
-else
-    echo "❌ Erro ao sincronizar"
-    exit 1
-fi
-echo ""
-
-# Verificar build
-echo "4️⃣  Verificando build..."
-if go build -o /tmp/qiabaco-test main.go 2>/dev/null; then
-    echo "✅ Build bem-sucedido"
-    rm -f /tmp/qiabaco-test
-else
-    echo "❌ Erro no build"
-    exit 1
-fi
-echo ""
-
-echo "✅ Setup concluído com sucesso!"
-echo ""
-echo "📚 Próximos passos:"
-echo "   1. Leia: INDEX.md"
-echo "   2. Rode: go run main.go"
-echo "   3. Teste: curl http://localhost:8080/health"
-echo ""
-echo "🚀 Bom desenvolvimento!"
+echo "4. Proximos passos:"
+echo "   npm run dev"
+echo "   curl http://localhost:8080/health"
