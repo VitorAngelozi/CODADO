@@ -11,7 +11,9 @@ const levelColors = {
   easy: 'bg-[var(--accent)]',
   medium: 'bg-[var(--accent)]',
   hard: 'bg-[var(--accent)]',
+  hardcore: 'bg-[var(--accent)]',
 }
+const HARDCORE_QUESTION_TIME = 15
 
 function QuizPage() {
   const navigate = useNavigate()
@@ -25,9 +27,13 @@ function QuizPage() {
   const [feedback, setFeedback] = useState(null)
   const [xp, setXp] = useState(0)
   const [correct, setCorrect] = useState(0)
+  const [timeLeft, setTimeLeft] = useState(HARDCORE_QUESTION_TIME)
+  const currentChallenge = challenges[currentIndex]
+  const canConfirm = useMemo(() => selectedIndex !== null, [selectedIndex])
+  const isShowingFeedback = Boolean(feedback)
 
   useEffect(() => {
-    if (!['easy', 'medium', 'hard'].includes(levelId)) {
+    if (!['easy', 'medium', 'hard', 'hardcore'].includes(levelId)) {
       navigate('/', { replace: true })
       return
     }
@@ -39,11 +45,41 @@ function QuizPage() {
     setFeedback(null)
     setXp(0)
     setCorrect(0)
+    setTimeLeft(HARDCORE_QUESTION_TIME)
   }, [levelId, navigate])
 
-  const currentChallenge = challenges[currentIndex]
-  const canConfirm = useMemo(() => selectedIndex !== null, [selectedIndex])
-  const isShowingFeedback = Boolean(feedback)
+  useEffect(() => {
+    if (levelId !== 'hardcore') return
+    if (isShowingFeedback) return
+    if (!currentChallenge) return
+    if (timeLeft <= 0) return
+
+    const timer = window.setInterval(() => {
+      setTimeLeft((value) => Math.max(0, value - 1))
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [levelId, isShowingFeedback, currentChallenge, timeLeft])
+
+  useEffect(() => {
+    if (levelId !== 'hardcore') return
+    if (isShowingFeedback) return
+    if (!currentChallenge) return
+    if (timeLeft > 0) return
+
+    const isCorrect = selectedIndex === currentChallenge.correctIndex
+    setFeedback({
+      status: isCorrect ? 'correct' : 'timeout',
+      correct: isCorrect,
+      explanation: isCorrect
+        ? currentChallenge.explanation
+        : `tempo esgotado. ${currentChallenge.explanation}`,
+    })
+    if (isCorrect) {
+      setXp((v) => v + 1)
+      setCorrect((v) => v + 1)
+    }
+  }, [levelId, isShowingFeedback, currentChallenge, timeLeft, selectedIndex])
 
   const handleSelect = (idx) => {
     if (isShowingFeedback) return
@@ -54,6 +90,7 @@ function QuizPage() {
     if (!canConfirm || isShowingFeedback) return
     const isCorrect = selectedIndex === currentChallenge.correctIndex
     setFeedback({
+      status: isCorrect ? 'correct' : 'wrong',
       correct: isCorrect,
       explanation: currentChallenge.explanation,
     })
@@ -82,13 +119,25 @@ function QuizPage() {
     setCurrentIndex((v) => v + 1)
     setSelectedIndex(null)
     setFeedback(null)
+    setTimeLeft(HARDCORE_QUESTION_TIME)
   }
 
   if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />
   if (!currentChallenge) return <ErrorState message="Nenhum desafio encontrado para este nivel." />
 
+  const hardcoreShakeClass =
+    levelId === 'hardcore' && !isShowingFeedback && timeLeft > 0 && timeLeft <= 4
+      ? 'hardcore-shake-strong'
+      : levelId === 'hardcore' && !isShowingFeedback && timeLeft > 0 && timeLeft <= 8
+        ? 'hardcore-shake-soft'
+        : ''
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto w-full max-w-3xl space-y-5">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className={`mx-auto w-full max-w-3xl space-y-5 ${hardcoreShakeClass}`}
+    >
       <button
         onClick={() => navigate('/')}
         className="terminal-panel w-fit px-4 py-2 text-xs font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] hover:bg-[rgba(217,211,200,0.08)] hover:shadow-[0_0_0_1px_rgba(217,211,200,0.35)] focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:bg-[rgba(217,211,200,0.1)] focus-visible:shadow-[0_0_0_2px_rgba(217,211,200,0.45)]"
@@ -101,18 +150,35 @@ function QuizPage() {
         total={challenges.length}
         colorClass={levelColors[levelId]}
       />
+      {levelId === 'hardcore' && (
+        <div className={timeLeft <= 5 ? 'hardcore-timer-critical ml-auto w-fit text-xs tracking-[0.16em]' : 'hardcore-timer ml-auto w-fit text-xs tracking-[0.16em]'}>
+          {String(timeLeft).padStart(2, '0')}s
+        </div>
+      )}
 
       <QuestionCard
         challenge={currentChallenge}
         selectedIndex={selectedIndex}
         onSelect={handleSelect}
+        revealCorrectIndex={
+          feedback && !feedback.correct ? currentChallenge.correctIndex : null
+        }
+        revealWrongIndex={
+          feedback && feedback.status === 'wrong' ? selectedIndex : null
+        }
       />
 
       {feedback && (
         <div className="terminal-panel px-5 py-4 text-sm leading-relaxed">
           <p className="text-[var(--text)]">
             <TypewriterText
-              text={feedback.correct ? '> correto.' : '> incorreto.'}
+              text={
+                feedback.status === 'timeout'
+                  ? '> tempo esgotado.'
+                  : feedback.correct
+                    ? '> correto.'
+                    : '> incorreto.'
+              }
               speed={10}
               showCursor
             />

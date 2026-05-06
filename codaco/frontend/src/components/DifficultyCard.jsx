@@ -4,6 +4,7 @@ const levelAscii = {
   easy: '[ 01 ]',
   medium: '[ 02 ]',
   hard: '[ 03 ]',
+  hardcore: '[ 04 ]',
 }
 
 function DifficultyCard({ level, onSelect }) {
@@ -28,4 +29,3 @@ function DifficultyCard({ level, onSelect }) {
 }
 
 export default DifficultyCard
-
