@@ -1,0 +1,297 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import ErrorState from '../components/ErrorState'
+import ProgressBar from '../components/ProgressBar'
+import QuestionCard from '../components/QuestionCard'
+import TypewriterText from '../components/TypewriterText'
+import { getChallengesForLevel } from '../data/challenges'
+import type { QuizFeedback, QuizLevelId, ResultPageState } from '../types'
+
+const levelColors: Record<QuizLevelId, string> = {
+  easy: 'bg-[var(--accent)]',
+  medium: 'bg-[var(--accent)]',
+  hard: 'bg-[var(--accent)]',
+  hardcore: 'bg-[var(--accent)]',
+  survival: 'bg-[var(--accent)]',
+}
+const HARDCORE_QUESTION_TIME = 15
+const SURVIVAL_CRASH_DURATION = 1400
+
+function isQuizLevelId(levelId?: string): levelId is QuizLevelId {
+  return (
+    levelId === 'easy' ||
+    levelId === 'medium' ||
+    levelId === 'hard' ||
+    levelId === 'hardcore' ||
+    levelId === 'survival'
+  )
+}
+
+function QuizPage() {
+  const navigate = useNavigate()
+  const { levelId } = useParams<{ levelId?: string }>()
+  const safeLevelId = isQuizLevelId(levelId) ? levelId : undefined
+  const challenges = useMemo(() => getChallengesForLevel(safeLevelId), [safeLevelId])
+
+  const [error, setError] = useState('')
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [answersByIndex, setAnswersByIndex] = useState<Record<number, number | null>>({})
+  const [feedbackByIndex, setFeedbackByIndex] = useState<Record<number, QuizFeedback>>({})
+  const [timeLeft, setTimeLeft] = useState(HARDCORE_QUESTION_TIME)
+  const [isSurvivalCrashed, setIsSurvivalCrashed] = useState(false)
+
+  const currentChallenge = challenges[currentIndex]
+  const selectedIndex = answersByIndex[currentIndex] ?? null
+  const feedback = feedbackByIndex[currentIndex] ?? null
+  const canConfirm = selectedIndex !== null
+  const isShowingFeedback = Boolean(feedback)
+  const isSurvivalMode = safeLevelId === 'survival'
+  const correct = useMemo(
+    () => Object.values(feedbackByIndex).filter((item) => item.correct).length,
+    [feedbackByIndex]
+  )
+  const xp = correct
+
+  useEffect(() => {
+    if (!safeLevelId) {
+      navigate('/', { replace: true })
+      return
+    }
+
+    const resetFrame = window.requestAnimationFrame(() => {
+      setError('')
+      setCurrentIndex(0)
+      setAnswersByIndex({})
+      setFeedbackByIndex({})
+      setTimeLeft(HARDCORE_QUESTION_TIME)
+      setIsSurvivalCrashed(false)
+    })
+
+    return () => window.cancelAnimationFrame(resetFrame)
+  }, [safeLevelId, navigate])
+
+  useEffect(() => {
+    if (!isSurvivalCrashed) return
+
+    const crashTimer = window.setTimeout(() => {
+      navigate('/', { replace: true })
+    }, SURVIVAL_CRASH_DURATION)
+
+    return () => window.clearTimeout(crashTimer)
+  }, [isSurvivalCrashed, navigate])
+
+  useEffect(() => {
+    if (safeLevelId !== 'hardcore') return
+    if (isShowingFeedback) return
+    if (!currentChallenge) return
+    if (timeLeft <= 0) return
+
+    const timer = window.setInterval(() => {
+      setTimeLeft((value) => Math.max(0, value - 1))
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [safeLevelId, isShowingFeedback, currentChallenge, timeLeft])
+
+  useEffect(() => {
+    if (safeLevelId !== 'hardcore') return
+    if (isShowingFeedback) return
+    if (!currentChallenge) return
+    if (timeLeft > 0) return
+
+    const isCorrect = selectedIndex === currentChallenge.correctIndex
+    const timeoutFrame = window.requestAnimationFrame(() => {
+      setFeedbackByIndex((previous) => ({
+        ...previous,
+        [currentIndex]: {
+          status: isCorrect ? 'correct' : 'timeout',
+          correct: isCorrect,
+          explanation: isCorrect
+            ? currentChallenge.explanation
+            : `tempo esgotado. ${currentChallenge.explanation}`,
+        },
+      }))
+    })
+
+    return () => window.cancelAnimationFrame(timeoutFrame)
+  }, [safeLevelId, isShowingFeedback, currentChallenge, timeLeft, selectedIndex, currentIndex])
+
+  useEffect(() => {
+    if (safeLevelId !== 'hardcore') return
+    if (feedback) return
+    const timerFrame = window.requestAnimationFrame(() => {
+      setTimeLeft(HARDCORE_QUESTION_TIME)
+    })
+
+    return () => window.cancelAnimationFrame(timerFrame)
+  }, [currentIndex, safeLevelId, feedback])
+
+  const handleSelect = (idx: number) => {
+    if (isShowingFeedback || isSurvivalCrashed) return
+    setAnswersByIndex((previous) => ({
+      ...previous,
+      [currentIndex]: idx,
+    }))
+  }
+
+  const confirmAnswer = () => {
+    if (!canConfirm || isShowingFeedback || !currentChallenge || isSurvivalCrashed) return
+    const isCorrect = selectedIndex === currentChallenge.correctIndex
+
+    if (isSurvivalMode && !isCorrect) {
+      setIsSurvivalCrashed(true)
+      return
+    }
+
+    setFeedbackByIndex((previous) => ({
+      ...previous,
+      [currentIndex]: {
+        status: isCorrect ? 'correct' : 'wrong',
+        correct: isCorrect,
+        explanation: currentChallenge.explanation,
+      },
+    }))
+  }
+
+  const nextStep = () => {
+    if (isSurvivalCrashed) return
+
+    const isLast = currentIndex === challenges.length - 1
+    if (isLast && safeLevelId) {
+      const resultState: ResultPageState = {
+        levelId: safeLevelId,
+        result: {
+          total: challenges.length,
+          correct,
+          xp,
+        },
+      }
+      navigate('/result', { state: resultState })
+      return
+    }
+
+    setCurrentIndex((value) => value + 1)
+    if (safeLevelId === 'hardcore' && !feedbackByIndex[currentIndex + 1]) {
+      setTimeLeft(HARDCORE_QUESTION_TIME)
+    }
+  }
+
+  const previousStep = () => {
+    if (isSurvivalMode || isSurvivalCrashed) return
+    if (currentIndex === 0) return
+    setCurrentIndex((value) => value - 1)
+  }
+
+  if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />
+  if (!currentChallenge || !safeLevelId) {
+    return <ErrorState message="Nenhum desafio encontrado para este nivel." />
+  }
+
+  const hardcoreShakeClass =
+    safeLevelId === 'hardcore' && !isShowingFeedback && timeLeft > 0 && timeLeft <= 4
+      ? 'hardcore-shake-strong'
+      : safeLevelId === 'hardcore' && !isShowingFeedback && timeLeft > 0 && timeLeft <= 8
+        ? 'hardcore-shake-soft'
+        : ''
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className={`relative mx-auto w-full max-w-3xl space-y-5 ${hardcoreShakeClass}`}
+    >
+      {isSurvivalCrashed && (
+        <div className="survival-crash-overlay" aria-hidden="true">
+          <div className="hardcore-crack-burst" />
+          <div className="hardcore-crack-noise" />
+          <div className="survival-crash-copy">
+            <p className="ascii-muted text-xs tracking-[0.28em]">[ SIGNAL LOST ]</p>
+            <h2
+              className="glitch mt-3 font-display text-3xl font-extrabold uppercase tracking-[0.16em] text-[var(--text)] md:text-5xl"
+              data-text="VOCE PERDEU"
+            >
+              VOCE PERDEU
+            </h2>
+            <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-[var(--muted)]">
+              Uma resposta errada encerra a run. Reiniciando o sistema...
+            </p>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={() => navigate('/')}
+        disabled={isSurvivalCrashed}
+        className="terminal-panel w-fit px-4 py-2 text-xs font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] hover:bg-[rgba(217,211,200,0.08)] hover:shadow-[0_0_0_1px_rgba(217,211,200,0.35)] focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:bg-[rgba(217,211,200,0.1)] focus-visible:shadow-[0_0_0_2px_rgba(217,211,200,0.45)]"
+      >
+        VOLTAR
+      </button>
+
+      <ProgressBar
+        current={currentIndex + 1}
+        total={challenges.length}
+        colorClass={levelColors[safeLevelId]}
+      />
+      {safeLevelId === 'hardcore' && (
+        <div className={timeLeft <= 5 ? 'hardcore-timer-critical ml-auto w-fit text-xs tracking-[0.16em]' : 'hardcore-timer ml-auto w-fit text-xs tracking-[0.16em]'}>
+          {String(timeLeft).padStart(2, '0')}s
+        </div>
+      )}
+
+      <QuestionCard
+        challenge={currentChallenge}
+        selectedIndex={selectedIndex}
+        onSelect={handleSelect}
+        revealCorrectIndex={feedback && !feedback.correct ? currentChallenge.correctIndex : null}
+        revealWrongIndex={feedback && feedback.status === 'wrong' ? selectedIndex : null}
+      />
+
+      {feedback && (
+        <div className="terminal-panel px-5 py-4 text-sm leading-relaxed">
+          <p className="text-[var(--text)]">
+            <TypewriterText
+              text={
+                feedback.status === 'timeout'
+                  ? '> tempo esgotado.'
+                  : feedback.correct
+                    ? '> correto.'
+                    : '> incorreto.'
+              }
+              speed={10}
+              showCursor
+            />
+          </p>
+          <p className="ascii-muted mt-1">
+            <TypewriterText
+              text={feedback.correct ? '> xp +1' : `> explicacao: ${feedback.explanation}`}
+              speed={9}
+            />
+          </p>
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-3">
+        {!isSurvivalMode && (
+          <button
+            type="button"
+            onClick={previousStep}
+            disabled={currentIndex === 0 || isSurvivalCrashed}
+            className="terminal-panel flex-1 px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            VOLTAR QUESTAO
+          </button>
+        )}
+        <button
+          onClick={isShowingFeedback ? nextStep : confirmAnswer}
+          disabled={isSurvivalCrashed || (!isShowingFeedback && !canConfirm)}
+          className="terminal-panel flex-1 px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isShowingFeedback ? (currentIndex === challenges.length - 1 ? 'FINALIZAR' : 'PROXIMA QUESTAO') : 'CONFIRMAR'}
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
+export default QuizPage

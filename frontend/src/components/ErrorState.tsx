@@ -1,4 +1,9 @@
-function ErrorState({ message, onRetry }) {
+interface ErrorStateProps {
+  message: string
+  onRetry?: () => void
+}
+
+function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
     <div className="mx-auto mt-10 w-full max-w-xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-center shadow-lg shadow-rose-100">
       <h3 className="font-display text-2xl font-bold text-rose-700">Ops, algo deu errado</h3>
@@ -16,4 +21,3 @@ function ErrorState({ message, onRetry }) {
 }
 
 export default ErrorState
-

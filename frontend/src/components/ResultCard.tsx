@@ -1,16 +1,26 @@
 import { motion } from 'framer-motion'
+import type { QuizResult } from '../types'
 
-function ResultCard({ result, onRetry, onBack }) {
-  const total = result?.total ?? 0
-  const correct = result?.correct ?? 0
-  const xp = result?.xp ?? 0
+interface ResultCardProps {
+  result: QuizResult
+  onRetry: () => void
+  onBack: () => void
+}
 
-  let message = '> session complete.'
+function ResultCard({ result, onRetry, onBack }: ResultCardProps) {
+  const total = result.total
+  const correct = result.correct
+  const xp = result.xp
+
   const pct = total > 0 ? (correct / total) * 100 : 0
-  if (pct === 100) message = '> perfeito. keep shipping.'
-  else if (pct >= 80) message = '> excelente. boa leitura de codigo.'
-  else if (pct >= 50) message = '> bom. repita para fixar.'
-  else message = '> continue. consistencia vence.'
+  const message =
+    pct === 100
+      ? '> perfeito. keep shipping.'
+      : pct >= 80
+        ? '> excelente. boa leitura de codigo.'
+        : pct >= 50
+          ? '> bom. repita para fixar.'
+          : '> continue. consistencia vence.'
 
   return (
     <motion.section

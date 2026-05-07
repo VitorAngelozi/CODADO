@@ -1,14 +1,14 @@
-const express = require('express');
-const {
+import { Router, type Request, type Response } from 'express';
+import {
   getLevelsController,
   getQuestionsController,
   submitController,
-  runBugHuntController
-} = require('../controllers/quizController');
+  runBugHuntController,
+} from '../controllers/quizController';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/health', (_req, res) => {
+router.get('/health', (_req: Request, res: Response) => {
   return res.status(200).json({ status: 'ok' });
 });
 
@@ -17,4 +17,4 @@ router.get('/questions', getQuestionsController);
 router.post('/submit', submitController);
 router.post('/bug-hunt/run', runBugHuntController);
 
-module.exports = router;
+export default router;

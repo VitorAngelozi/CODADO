@@ -1,76 +1,83 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { FormEvent, KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { BUG_HUNT_MODES, getBugHuntMode } from '../data/bugHuntChallenges'
+import type { BugHuntRunResponse } from '../types'
 
 const INDENT = '    '
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 function BugHuntPage() {
   const navigate = useNavigate()
-  const { modeId } = useParams()
+  const { modeId } = useParams<{ modeId?: string }>()
   const mode = useMemo(() => getBugHuntMode(modeId), [modeId])
   const challenges = mode.challenges
 
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [codeByIndex, setCodeByIndex] = useState({})
-  const [resultByIndex, setResultByIndex] = useState({})
+  const [codeByIndex, setCodeByIndex] = useState<Record<number, string>>({})
+  const [resultByIndex, setResultByIndex] = useState<Record<number, BugHuntRunResponse | null>>({})
   const [isRunning, setIsRunning] = useState(false)
 
   useEffect(() => {
-    if (!BUG_HUNT_MODES[modeId]) {
+    if (!modeId || !(modeId in BUG_HUNT_MODES)) {
       navigate('/bug-hunt/normal', { replace: true })
       return
     }
 
-    setCurrentIndex(0)
-    setCodeByIndex({})
-    setResultByIndex({})
-    setIsRunning(false)
+    const resetFrame = window.requestAnimationFrame(() => {
+      setCurrentIndex(0)
+      setCodeByIndex({})
+      setResultByIndex({})
+      setIsRunning(false)
+    })
+
+    return () => window.cancelAnimationFrame(resetFrame)
   }, [modeId, navigate])
 
   const challenge = useMemo(() => challenges[currentIndex], [challenges, currentIndex])
   const code = codeByIndex[currentIndex] ?? challenge.buggyCode
   const result = resultByIndex[currentIndex] ?? null
 
-  const setCodeForCurrent = (value) => {
+  const setCodeForCurrent = (value: string) => {
     setCodeByIndex((previous) => ({
       ...previous,
       [currentIndex]: value,
     }))
   }
 
-  const setResultForCurrent = (value) => {
+  const setResultForCurrent = (value: BugHuntRunResponse | null) => {
     setResultByIndex((previous) => ({
       ...previous,
       [currentIndex]: value,
     }))
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (isRunning) return
 
     setIsRunning(true)
     try {
-      const response = await axios.post(`${API_BASE_URL}/bug-hunt/run`, {
+      const response = await axios.post<BugHuntRunResponse>(`${API_BASE_URL}/bug-hunt/run`, {
         challengeId: challenge.id,
         code,
       })
       setResultForCurrent(response.data)
-    } catch (err) {
-      const details =
-        err?.response?.data?.details ||
-        err?.message ||
-        'falha ao executar validacao'
+    } catch (err: unknown) {
+      const details = axios.isAxiosError(err)
+        ? err.response?.data?.details ?? err.message
+        : err instanceof Error
+          ? err.message
+          : 'falha ao executar validacao'
       setResultForCurrent({ status: 'sandbox_error', details })
     } finally {
       setIsRunning(false)
     }
   }
 
-  const goToChallenge = (nextIndex) => {
+  const goToChallenge = (nextIndex: number) => {
     setCurrentIndex(nextIndex)
     setIsRunning(false)
   }
@@ -90,7 +97,7 @@ function BugHuntPage() {
     setResultForCurrent(null)
   }
 
-  const handleEditorKeyDown = (event) => {
+  const handleEditorKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     const { key, currentTarget, shiftKey } = event
     if (key !== 'Tab' && key !== 'Enter') return
 

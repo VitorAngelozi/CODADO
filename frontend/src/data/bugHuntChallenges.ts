@@ -1,4 +1,6 @@
-export const BUG_HUNT_MODES = {
+import type { BugHuntMode, BugHuntModeId } from '../types'
+
+export const BUG_HUNT_MODES: Record<BugHuntModeId, BugHuntMode> = {
   normal: {
     id: 'normal',
     title: 'CACA AO BUG',
@@ -86,4 +88,7 @@ export const BUG_HUNT_MODES = {
   },
 }
 
-export const getBugHuntMode = (modeId) => BUG_HUNT_MODES[modeId] ?? BUG_HUNT_MODES.normal
+export const getBugHuntMode = (modeId?: string): BugHuntMode =>
+  (modeId && modeId in BUG_HUNT_MODES
+    ? BUG_HUNT_MODES[modeId as BugHuntModeId]
+    : BUG_HUNT_MODES.normal)

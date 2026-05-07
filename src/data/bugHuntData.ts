@@ -1,4 +1,6 @@
-const BUG_HUNT_CHALLENGES = [
+import type { BugHuntChallenge } from '../types/backend';
+
+export const BUG_HUNT_CHALLENGES: BugHuntChallenge[] = [
   {
     id: 'bug_normal_01',
     title: 'Loop infinito na validacao',
@@ -14,8 +16,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: [0], expected: [0] },
       { input: [5], expected: [0, 2, 4] },
-      { input: [8], expected: [0, 2, 4, 6, 8] }
-    ]
+      { input: [8], expected: [0, 2, 4, 6, 8] },
+    ],
   },
   {
     id: 'bug_normal_02',
@@ -29,8 +31,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: [10, 3], expected: 10 },
       { input: [2, 9], expected: 9 },
-      { input: [7, 7], expected: 7 }
-    ]
+      { input: [7, 7], expected: 7 },
+    ],
   },
   {
     id: 'bug_normal_03',
@@ -42,8 +44,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: ['codado'], expected: 'o' },
       { input: ['python'], expected: 'n' },
-      { input: ['a'], expected: 'a' }
-    ]
+      { input: ['a'], expected: 'a' },
+    ],
   },
   {
     id: 'bug_hard_01',
@@ -56,8 +58,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: ['backend', 'api'], expected: { backend: ['api'] } },
       { input: ['frontend', 'ui'], expected: { frontend: ['ui'] } },
-      { input: ['backend', 'cache', { backend: ['api'] }], expected: { backend: ['api', 'cache'] } }
-    ]
+      { input: ['backend', 'cache', { backend: ['api'] }], expected: { backend: ['api', 'cache'] } },
+    ],
   },
   {
     id: 'bug_hard_02',
@@ -69,8 +71,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: [[10, 2, 30, 4]], expected: [2, 4, 10, 30] },
       { input: [['10', '2', '30', '4']], expected: [2, 4, 10, 30] },
-      { input: [[7, '1', 5]], expected: [1, 5, 7] }
-    ]
+      { input: [[7, '1', 5]], expected: [1, 5, 7] },
+    ],
   },
   {
     id: 'bug_hard_03',
@@ -85,8 +87,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: [[{ name: 'ana', score: 5 }, { name: 'bia', score: 7 }]], expected: 12 },
       { input: [[{ name: 'ana' }, { name: 'bia', score: 3 }, { name: 'caio' }]], expected: 3 },
-      { input: [[]], expected: 0 }
-    ]
+      { input: [[]], expected: 0 },
+    ],
   },
   {
     id: 'bug_hard_04',
@@ -98,8 +100,8 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: [[10, 20, 30]], expected: 20 },
       { input: [[5]], expected: 5 },
-      { input: [[]], expected: 0 }
-    ]
+      { input: [[]], expected: 0 },
+    ],
   },
   {
     id: 'bug_hard_05',
@@ -115,16 +117,11 @@ const BUG_HUNT_CHALLENGES = [
     testCases: [
       { input: ['BanAna', 'a'], expected: 3 },
       { input: ['PYthon Py', 'p'], expected: 2 },
-      { input: ['debug', 'Z'], expected: 0 }
-    ]
-  }
+      { input: ['debug', 'Z'], expected: 0 },
+    ],
+  },
 ];
 
-function getBugChallengeById(challengeId) {
+export function getBugChallengeById(challengeId: string): BugHuntChallenge | null {
   return BUG_HUNT_CHALLENGES.find((challenge) => challenge.id === challengeId) || null;
 }
-
-module.exports = {
-  BUG_HUNT_CHALLENGES,
-  getBugChallengeById
-};

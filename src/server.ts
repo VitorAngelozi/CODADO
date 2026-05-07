@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const quizRoutes = require('./routes/quizRoutes');
-const { errorHandler } = require('./middlewares/errorHandler');
+import express from 'express';
+import cors from 'cors';
+import quizRoutes from './routes/quizRoutes';
+import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
 
@@ -18,9 +18,9 @@ app.use(
       'accept',
       'origin',
       'Cache-Control',
-      'X-Requested-With'
+      'X-Requested-With',
     ],
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -28,8 +28,12 @@ app.use(express.json());
 app.use('/', quizRoutes);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8080;
+const PORT = Number(process.env.PORT || 8080);
 app.listen(PORT, () => {
   console.log(`Servidor Codado iniciado em http://localhost:${PORT}`);
-  console.log('Endpoints: GET /health, GET /levels, GET /questions?level=easy, POST /submit, POST /bug-hunt/run');
+  console.log(
+    'Endpoints: GET /health, GET /levels, GET /questions?level=easy, POST /submit, POST /bug-hunt/run'
+  );
 });
+
+export default app;

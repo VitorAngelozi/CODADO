@@ -1,4 +1,13 @@
-function TrackSection({ code, title, description, children }) {
+import type { ReactNode } from 'react'
+
+interface TrackSectionProps {
+  code: string
+  title: string
+  description: string
+  children: ReactNode
+}
+
+function TrackSection({ code, title, description, children }: TrackSectionProps) {
   return (
     <section className="space-y-4">
       <div className="terminal-panel px-5 py-4">

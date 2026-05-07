@@ -32,6 +32,15 @@ else
 fi
 echo ""
 
-echo "4. Proximos passos:"
+echo "4. Validando compilacao TypeScript..."
+if npm run build; then
+    echo "Build concluido"
+else
+    echo "Falha no build"
+    exit 1
+fi
+echo ""
+
+echo "5. Proximos passos:"
 echo "   npm run dev"
 echo "   curl http://localhost:8080/health"

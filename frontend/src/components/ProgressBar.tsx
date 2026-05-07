@@ -1,4 +1,10 @@
-function ProgressBar({ current, total, colorClass }) {
+interface ProgressBarProps {
+  current: number
+  total: number
+  colorClass: string
+}
+
+function ProgressBar({ current, total, colorClass }: ProgressBarProps) {
   const progress = total > 0 ? (current / total) * 100 : 0
 
   return (
@@ -18,4 +24,3 @@ function ProgressBar({ current, total, colorClass }) {
 }
 
 export default ProgressBar
-

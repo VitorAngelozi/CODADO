@@ -1,21 +1,42 @@
-const { getLevels, getQuestionsByLevel } = require('../data/quizData');
-const { getBugChallengeById } = require('../data/bugHuntData');
-const { runBugHuntInSandbox } = require('../services/bugHuntSandboxService');
+import type { Request, Response } from 'express';
+import { getLevels, getQuestionsByLevel } from '../data/quizData';
+import { getBugChallengeById } from '../data/bugHuntData';
+import { runBugHuntInSandbox } from '../services/bugHuntSandboxService';
+import type {
+  BugHuntRunRequest,
+  LegacyQuestion,
+  ParsedSubmitAnswersRequest,
+  Question,
+  QuestionsResponse,
+  SubmitAnswersRequest,
+  SubmitAnswersResponse,
+} from '../types/backend';
 
-function toLegacyQuestion(question) {
+function toLegacyQuestion(question: Question): LegacyQuestion {
   return {
     id: question.id,
     enunciar: question.question,
     opcoes: question.options,
-    resposta: question.options[question.answer]
+    resposta: question.options[question.answer],
   };
 }
 
-function getLevelsController(_req, res) {
+function parseSubmitRequest(body: SubmitAnswersRequest | undefined): ParsedSubmitAnswersRequest {
+  return {
+    level: body?.level || 'easy',
+    respostas: Array.isArray(body?.respostas) ? body.respostas : [],
+    answers: Array.isArray(body?.answers) ? body.answers : [],
+  };
+}
+
+export function getLevelsController(_req: Request, res: Response): Response {
   return res.status(200).json({ levels: getLevels() });
 }
 
-function getQuestionsController(req, res) {
+export function getQuestionsController(
+  req: Request<unknown, QuestionsResponse, unknown, { level?: string }>,
+  res: Response<QuestionsResponse>
+): Response {
   const level = req.query.level || 'easy';
   const questions = getQuestionsByLevel(level);
 
@@ -23,17 +44,17 @@ function getQuestionsController(req, res) {
     level,
     total: questions.length,
     perguntas: questions.map(toLegacyQuestion),
-    questions
+    questions,
   });
 }
 
-function submitController(req, res) {
-  const { level = 'easy' } = req.body || {};
-  const respostas = Array.isArray(req.body?.respostas) ? req.body.respostas : [];
-  const answers = Array.isArray(req.body?.answers) ? req.body.answers : [];
-
+export function submitController(
+  req: Request<unknown, SubmitAnswersResponse, SubmitAnswersRequest>,
+  res: Response<SubmitAnswersResponse>
+): Response {
+  const { level, respostas, answers } = parseSubmitRequest(req.body);
   const questions = getQuestionsByLevel(level);
-  const questionMap = new Map(questions.map((q) => [q.id, q]));
+  const questionMap = new Map(questions.map((question) => [question.id, question]));
 
   let acertos = 0;
 
@@ -79,18 +100,21 @@ function submitController(req, res) {
     total,
     pontuacao: acertos,
     percentual,
-    mensagem
+    mensagem,
   });
 }
 
-async function runBugHuntController(req, res) {
+export async function runBugHuntController(
+  req: Request<unknown, unknown, Partial<BugHuntRunRequest>>,
+  res: Response
+): Promise<Response> {
   const challengeId = String(req.body?.challengeId || '').trim();
   const code = String(req.body?.code || '');
 
   if (!challengeId) {
     return res.status(400).json({
       status: 'sandbox_error',
-      details: 'challengeId obrigatorio'
+      details: 'challengeId obrigatorio',
     });
   }
 
@@ -98,7 +122,7 @@ async function runBugHuntController(req, res) {
   if (!challenge) {
     return res.status(400).json({
       status: 'sandbox_error',
-      details: 'desafio nao encontrado'
+      details: 'desafio nao encontrado',
     });
   }
 
@@ -112,20 +136,13 @@ async function runBugHuntController(req, res) {
       challengeId,
       status: result.status,
       durationMs,
-      detail: result.details || null
+      detail: result.details || null,
     })
   );
 
   return res.status(200).json({
     status: result.status,
     tests: result.tests,
-    details: result.details
+    details: result.details,
   });
 }
-
-module.exports = {
-  getLevelsController,
-  getQuestionsController,
-  submitController,
-  runBugHuntController
-};

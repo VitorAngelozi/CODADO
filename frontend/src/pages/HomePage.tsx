@@ -5,19 +5,34 @@ import PageFrame from '../components/PageFrame'
 import TerminalHero from '../components/TerminalHero'
 import TrackSection from '../components/TrackSection'
 import { LEVELS } from '../data/challenges'
+import type { DifficultyCardLevel, QuizLevelId } from '../types'
+
+function isQuizLevelId(id: DifficultyCardLevel['id']): id is QuizLevelId {
+  return (
+    id === 'easy' ||
+    id === 'medium' ||
+    id === 'hard' ||
+    id === 'hardcore' ||
+    id === 'survival'
+  )
+}
 
 function HomePage() {
   const navigate = useNavigate()
   const [isHardcoreBooting, setIsHardcoreBooting] = useState(false)
-  const bootTimerRef = useRef(null)
+  const bootTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     return () => {
-      if (bootTimerRef.current) window.clearTimeout(bootTimerRef.current)
+      if (bootTimerRef.current !== null) window.clearTimeout(bootTimerRef.current)
     }
   }, [])
 
-  const handleSelectLevel = (id) => {
+  const handleSelectLevel = (id: DifficultyCardLevel['id']) => {
+    if (!isQuizLevelId(id)) {
+      return
+    }
+
     if (id !== 'hardcore') {
       navigate(`/quiz/${id}`)
       return
@@ -42,7 +57,7 @@ function HomePage() {
       <TrackSection
         code="[ TRILHA 01 ]"
         title="Logica de Programacao"
-        description="Resolva desafios de leitura de codigo e evolua do basico ao hardcore."
+        description="Resolva desafios de leitura de codigo, evolua do basico ao hardcore e encare um modo sobrevivencia de uma vida so."
       >
         {LEVELS.map((level) => (
           <DifficultyCard key={level.id} level={level} onSelect={handleSelectLevel} />

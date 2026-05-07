@@ -1,10 +1,20 @@
+import type { Challenge } from '../types'
+
+interface QuestionCardProps {
+  challenge: Challenge
+  selectedIndex: number | null
+  onSelect: (index: number) => void
+  revealCorrectIndex?: number | null
+  revealWrongIndex?: number | null
+}
+
 function QuestionCard({
   challenge,
   selectedIndex,
   onSelect,
   revealCorrectIndex = null,
   revealWrongIndex = null,
-}) {
+}: QuestionCardProps) {
   return (
     <article className="terminal-panel scanline px-6 py-7">
       <p className="ascii-muted text-xs tracking-[0.22em]">[ CHALLENGE ]</p>
@@ -30,9 +40,9 @@ function QuestionCard({
                   ? 'border-[#6cff9a] bg-[rgba(108,255,154,0.08)] shadow-[0_0_0_1px_rgba(108,255,154,0.45)]'
                   : isWrongRevealed
                     ? 'border-[#ff6c6c] bg-[rgba(255,108,108,0.1)] shadow-[0_0_0_1px_rgba(255,108,108,0.45)]'
-                  : isSelected
-                    ? 'border-[var(--accent)] bg-[rgba(217,211,200,0.1)] shadow-[0_0_0_1px_rgba(217,211,200,0.35)]'
-                    : ''
+                    : isSelected
+                      ? 'border-[var(--accent)] bg-[rgba(217,211,200,0.1)] shadow-[0_0_0_1px_rgba(217,211,200,0.35)]'
+                      : ''
               }`}
             >
               <span className="ascii-muted mr-2">{`[${String(idx + 1).padStart(2, '0')}]`}</span>

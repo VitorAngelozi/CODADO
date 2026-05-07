@@ -1,15 +1,22 @@
 import { motion } from 'framer-motion'
+import type { DifficultyCardLevel } from '../types'
 
-const levelAscii = {
+const levelAscii: Record<DifficultyCardLevel['id'], string> = {
   easy: '[ 01 ]',
   medium: '[ 02 ]',
   hard: '[ 03 ]',
   hardcore: '[ 04 ]',
-  bug_hunt_normal: '[ 05 ]',
-  bug_hunt_hard: '[ 06 ]',
+  survival: '[ 05 ]',
+  bug_hunt_normal: '[ 06 ]',
+  bug_hunt_hard: '[ 07 ]',
 }
 
-function DifficultyCard({ level, onSelect }) {
+interface DifficultyCardProps {
+  level: DifficultyCardLevel
+  onSelect: (id: DifficultyCardLevel['id']) => void
+}
+
+function DifficultyCard({ level, onSelect }: DifficultyCardProps) {
   return (
     <motion.button
       whileHover={{ y: -3 }}

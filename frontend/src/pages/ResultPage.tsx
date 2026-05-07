@@ -1,11 +1,18 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import ResultCard from '../components/ResultCard'
+import type { ResultPageState } from '../types'
+
+function isResultPageState(value: unknown): value is ResultPageState {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Partial<ResultPageState>
+  return Boolean(candidate.levelId && candidate.result)
+}
 
 function ResultPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
 
-  if (!state?.result || !state?.levelId) {
+  if (!isResultPageState(state)) {
     navigate('/', { replace: true })
     return null
   }

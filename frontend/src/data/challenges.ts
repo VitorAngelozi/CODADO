@@ -1,4 +1,9 @@
-﻿export const LEVELS = [
+import type { Challenge, FrontendLevel, QuizLevelId } from '../types'
+
+const BASE_QUIZ_LEVELS = ['easy', 'medium', 'hard', 'hardcore'] as const
+type BaseQuizLevelId = (typeof BASE_QUIZ_LEVELS)[number]
+
+export const LEVELS: FrontendLevel[] = [
   {
     id: 'easy',
     nome: 'Facil',
@@ -19,18 +24,14 @@
     nome: 'Hardcore',
     desc: 'Casos limite reais: closures, LEGB, mutabilidade, sort estavel, excecoes e iteradores.',
   },
+  {
+    id: 'survival',
+    nome: 'Modo Sobrevivencia',
+    desc: 'Todas as perguntas misturadas. Uma vida so: errou, reinicia tudo.',
+  },
 ]
 
-/**
- * Challenge shape:
- * - id: string
- * - prompt: string (enunciado)
- * - code: string (python snippet)
- * - options: string[]
- * - correctIndex: number
- * - explanation: string
- */
-export const CHALLENGES = {
+export const CHALLENGES: Record<BaseQuizLevelId, Challenge[]> = {
   easy: [
     {
       id: 'py_e_01',
@@ -361,4 +362,24 @@ export const CHALLENGES = {
   ],
 }
 
-export const getChallengesForLevel = (levelId) => CHALLENGES[levelId] ?? []
+function shuffleChallenges(challenges: Challenge[]): Challenge[] {
+  const shuffled = [...challenges]
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]]
+  }
+
+  return shuffled
+}
+
+export function getSurvivalChallenges(): Challenge[] {
+  return shuffleChallenges(BASE_QUIZ_LEVELS.flatMap((levelId) => CHALLENGES[levelId]))
+}
+
+export const getChallengesForLevel = (levelId?: QuizLevelId): Challenge[] => {
+  if (!levelId) return []
+  if (levelId === 'survival') return getSurvivalChallenges()
+
+  return CHALLENGES[levelId]
+}
