@@ -5,7 +5,6 @@ const levelAscii = {
   medium: '[ 02 ]',
   hard: '[ 03 ]',
   hardcore: '[ 04 ]',
-  bug_hunt: '[ 01 ]',
 }
 
 function DifficultyCard({ level, onSelect }) {
@@ -14,7 +13,7 @@ function DifficultyCard({ level, onSelect }) {
       whileHover={{ y: -3 }}
       whileTap={{ scale: 0.995 }}
       onClick={() => onSelect(level.id)}
-      className="group terminal-panel relative min-h-[220px] w-full overflow-hidden px-5 py-6 text-left transition duration-300 hover:border-[var(--accent)] focus:outline-none"
+      className="group terminal-panel relative w-full overflow-hidden px-5 py-6 text-left transition duration-300 hover:border-[var(--accent)] focus:outline-none"
     >
       <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
         <div className="h-full w-full bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.06)_50%,transparent_100%)]" />

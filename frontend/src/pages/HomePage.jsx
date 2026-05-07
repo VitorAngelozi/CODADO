@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import DifficultyCard from '../components/DifficultyCard'
-import PageFrame from '../components/PageFrame'
 import TerminalHero from '../components/TerminalHero'
-import TrackSection from '../components/TrackSection'
 import { LEVELS } from '../data/challenges'
 
 function HomePage() {
@@ -30,7 +29,7 @@ function HomePage() {
   }
 
   return (
-    <PageFrame>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative space-y-8">
       {isHardcoreBooting && (
         <div className="hardcore-crack-overlay" aria-hidden="true">
           <div className="hardcore-crack-burst" />
@@ -39,31 +38,12 @@ function HomePage() {
       )}
 
       <TerminalHero />
-      <TrackSection
-        code="[ TRILHA 01 ]"
-        title="Logica de Programacao"
-        description="Resolva desafios de leitura de codigo e evolua do basico ao hardcore."
-      >
+      <section className="grid gap-4 md:grid-cols-3">
         {LEVELS.map((level) => (
           <DifficultyCard key={level.id} level={level} onSelect={handleSelectLevel} />
         ))}
-      </TrackSection>
-
-      <TrackSection
-        code="[ TRILHA 02 ]"
-        title="Depuracao de Codigo"
-        description="Encontre o erro em scripts Python, edite o codigo e envie a correcao no modo Caca ao Bug."
-      >
-        <DifficultyCard
-          level={{
-            id: 'bug_hunt',
-            nome: 'Caca ao Bug',
-            desc: 'Leia o codigo, encontre a falha logica e submeta a versao corrigida.',
-          }}
-          onSelect={() => navigate('/bug-hunt')}
-        />
-      </TrackSection>
-    </PageFrame>
+      </section>
+    </motion.div>
   )
 }
 
