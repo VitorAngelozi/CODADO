@@ -1,0 +1,34 @@
+﻿:root {
+  --bg: #0a0a0a;
+  --panel: #101010;
+  --line: #2a2a2a;
+  --text: #ece8df;
+  --muted: #b6b0a5;
+  --accent: #d9d3c8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body), monospace;
+  color: var(--text);
+  background: var(--bg);
+  letter-spacing: 0.01em;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.terminal-panel {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 40%), var(--panel);
+}
+
+.ascii-muted {
+  color: var(--muted);
+  opacity: 0.8;
+}

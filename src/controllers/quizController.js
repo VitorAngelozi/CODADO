@@ -1,4 +1,6 @@
 const { getLevels, getQuestionsByLevel } = require('../data/quizData');
+const { getBugChallengeById } = require('../data/bugHuntData');
+const { runBugHuntInSandbox } = require('../services/bugHuntSandboxService');
 
 function toLegacyQuestion(question) {
   return {
@@ -81,8 +83,49 @@ function submitController(req, res) {
   });
 }
 
+async function runBugHuntController(req, res) {
+  const challengeId = String(req.body?.challengeId || '').trim();
+  const code = String(req.body?.code || '');
+
+  if (!challengeId) {
+    return res.status(400).json({
+      status: 'sandbox_error',
+      details: 'challengeId obrigatorio'
+    });
+  }
+
+  const challenge = getBugChallengeById(challengeId);
+  if (!challenge) {
+    return res.status(400).json({
+      status: 'sandbox_error',
+      details: 'desafio nao encontrado'
+    });
+  }
+
+  const startedAt = Date.now();
+  const result = await runBugHuntInSandbox({ challenge, code });
+  const durationMs = result.durationMs ?? Date.now() - startedAt;
+
+  console.log(
+    JSON.stringify({
+      event: 'bug_hunt_run',
+      challengeId,
+      status: result.status,
+      durationMs,
+      detail: result.details || null
+    })
+  );
+
+  return res.status(200).json({
+    status: result.status,
+    tests: result.tests,
+    details: result.details
+  });
+}
+
 module.exports = {
   getLevelsController,
   getQuestionsController,
-  submitController
+  submitController,
+  runBugHuntController
 };

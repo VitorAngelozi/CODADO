@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import DifficultyCard from '../components/DifficultyCard'
+import PageFrame from '../components/PageFrame'
 import TerminalHero from '../components/TerminalHero'
+import TrackSection from '../components/TrackSection'
 import { LEVELS } from '../data/challenges'
 
 function HomePage() {
@@ -29,7 +30,7 @@ function HomePage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative space-y-8">
+    <PageFrame>
       {isHardcoreBooting && (
         <div className="hardcore-crack-overlay" aria-hidden="true">
           <div className="hardcore-crack-burst" />
@@ -38,12 +39,39 @@ function HomePage() {
       )}
 
       <TerminalHero />
-      <section className="grid gap-4 md:grid-cols-3">
+      <TrackSection
+        code="[ TRILHA 01 ]"
+        title="Logica de Programacao"
+        description="Resolva desafios de leitura de codigo e evolua do basico ao hardcore."
+      >
         {LEVELS.map((level) => (
           <DifficultyCard key={level.id} level={level} onSelect={handleSelectLevel} />
         ))}
-      </section>
-    </motion.div>
+      </TrackSection>
+
+      <TrackSection
+        code="[ TRILHA 02 ]"
+        title="Depuracao de Codigo"
+        description="Encontre o erro em scripts Python com duas trilhas: uma normal para aquecer e outra hard mode com casos mais pesados."
+      >
+        <DifficultyCard
+          level={{
+            id: 'bug_hunt_normal',
+            nome: 'Caca ao Bug',
+            desc: '3 questoes com bugs classicos de loop, condicao e indexacao.',
+          }}
+          onSelect={() => navigate('/bug-hunt/normal')}
+        />
+        <DifficultyCard
+          level={{
+            id: 'bug_hunt_hard',
+            nome: 'Caca ao Bug Hard Mode',
+            desc: '5 questoes de depuracao com bugs mais dificeis, casos limite e validacao real no backend.',
+          }}
+          onSelect={() => navigate('/bug-hunt/hard')}
+        />
+      </TrackSection>
+    </PageFrame>
   )
 }
 

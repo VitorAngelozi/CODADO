@@ -23,14 +23,20 @@ function QuizPage() {
 
   const [error, setError] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [selectedIndex, setSelectedIndex] = useState(null)
-  const [feedback, setFeedback] = useState(null)
-  const [xp, setXp] = useState(0)
-  const [correct, setCorrect] = useState(0)
+  const [answersByIndex, setAnswersByIndex] = useState({})
+  const [feedbackByIndex, setFeedbackByIndex] = useState({})
   const [timeLeft, setTimeLeft] = useState(HARDCORE_QUESTION_TIME)
+
   const currentChallenge = challenges[currentIndex]
+  const selectedIndex = answersByIndex[currentIndex] ?? null
+  const feedback = feedbackByIndex[currentIndex] ?? null
   const canConfirm = useMemo(() => selectedIndex !== null, [selectedIndex])
   const isShowingFeedback = Boolean(feedback)
+  const correct = useMemo(
+    () => Object.values(feedbackByIndex).filter((item) => item?.correct).length,
+    [feedbackByIndex]
+  )
+  const xp = correct
 
   useEffect(() => {
     if (!['easy', 'medium', 'hard', 'hardcore'].includes(levelId)) {
@@ -38,13 +44,10 @@ function QuizPage() {
       return
     }
 
-    // Reset session when changing levels
     setError('')
     setCurrentIndex(0)
-    setSelectedIndex(null)
-    setFeedback(null)
-    setXp(0)
-    setCorrect(0)
+    setAnswersByIndex({})
+    setFeedbackByIndex({})
     setTimeLeft(HARDCORE_QUESTION_TIME)
   }, [levelId, navigate])
 
@@ -68,36 +71,43 @@ function QuizPage() {
     if (timeLeft > 0) return
 
     const isCorrect = selectedIndex === currentChallenge.correctIndex
-    setFeedback({
-      status: isCorrect ? 'correct' : 'timeout',
-      correct: isCorrect,
-      explanation: isCorrect
-        ? currentChallenge.explanation
-        : `tempo esgotado. ${currentChallenge.explanation}`,
-    })
-    if (isCorrect) {
-      setXp((v) => v + 1)
-      setCorrect((v) => v + 1)
-    }
-  }, [levelId, isShowingFeedback, currentChallenge, timeLeft, selectedIndex])
+    setFeedbackByIndex((previous) => ({
+      ...previous,
+      [currentIndex]: {
+        status: isCorrect ? 'correct' : 'timeout',
+        correct: isCorrect,
+        explanation: isCorrect
+          ? currentChallenge.explanation
+          : `tempo esgotado. ${currentChallenge.explanation}`,
+      },
+    }))
+  }, [levelId, isShowingFeedback, currentChallenge, timeLeft, selectedIndex, currentIndex])
+
+  useEffect(() => {
+    if (levelId !== 'hardcore') return
+    if (feedback) return
+    setTimeLeft(HARDCORE_QUESTION_TIME)
+  }, [currentIndex, levelId, feedback])
 
   const handleSelect = (idx) => {
     if (isShowingFeedback) return
-    setSelectedIndex(idx)
+    setAnswersByIndex((previous) => ({
+      ...previous,
+      [currentIndex]: idx,
+    }))
   }
 
   const confirmAnswer = () => {
     if (!canConfirm || isShowingFeedback) return
     const isCorrect = selectedIndex === currentChallenge.correctIndex
-    setFeedback({
-      status: isCorrect ? 'correct' : 'wrong',
-      correct: isCorrect,
-      explanation: currentChallenge.explanation,
-    })
-    if (isCorrect) {
-      setXp((v) => v + 1)
-      setCorrect((v) => v + 1)
-    }
+    setFeedbackByIndex((previous) => ({
+      ...previous,
+      [currentIndex]: {
+        status: isCorrect ? 'correct' : 'wrong',
+        correct: isCorrect,
+        explanation: currentChallenge.explanation,
+      },
+    }))
   }
 
   const nextStep = () => {
@@ -116,10 +126,15 @@ function QuizPage() {
       return
     }
 
-    setCurrentIndex((v) => v + 1)
-    setSelectedIndex(null)
-    setFeedback(null)
-    setTimeLeft(HARDCORE_QUESTION_TIME)
+    setCurrentIndex((value) => value + 1)
+    if (levelId === 'hardcore' && !feedbackByIndex[currentIndex + 1]) {
+      setTimeLeft(HARDCORE_QUESTION_TIME)
+    }
+  }
+
+  const previousStep = () => {
+    if (currentIndex === 0) return
+    setCurrentIndex((value) => value - 1)
   }
 
   if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />
@@ -192,13 +207,23 @@ function QuizPage() {
         </div>
       )}
 
-      <button
-        onClick={isShowingFeedback ? nextStep : confirmAnswer}
-        disabled={!isShowingFeedback && !canConfirm}
-        className="terminal-panel w-full px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {isShowingFeedback ? (currentIndex === challenges.length - 1 ? 'FINALIZAR' : 'PROXIMO') : 'CONFIRMAR'}
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={previousStep}
+          disabled={currentIndex === 0}
+          className="terminal-panel flex-1 px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          VOLTAR QUESTAO
+        </button>
+        <button
+          onClick={isShowingFeedback ? nextStep : confirmAnswer}
+          disabled={!isShowingFeedback && !canConfirm}
+          className="terminal-panel flex-1 px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isShowingFeedback ? (currentIndex === challenges.length - 1 ? 'FINALIZAR' : 'PROXIMA QUESTAO') : 'CONFIRMAR'}
+        </button>
+      </div>
     </motion.div>
   )
 }

@@ -31,5 +31,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Servidor Codado iniciado em http://localhost:${PORT}`);
-  console.log('Endpoints: GET /health, GET /levels, GET /questions?level=easy, POST /submit');
+  console.log('Endpoints: GET /health, GET /levels, GET /questions?level=easy, POST /submit, POST /bug-hunt/run');
 });

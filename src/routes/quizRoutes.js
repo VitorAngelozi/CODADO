@@ -2,7 +2,8 @@ const express = require('express');
 const {
   getLevelsController,
   getQuestionsController,
-  submitController
+  submitController,
+  runBugHuntController
 } = require('../controllers/quizController');
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.get('/health', (_req, res) => {
 router.get('/levels', getLevelsController);
 router.get('/questions', getQuestionsController);
 router.post('/submit', submitController);
+router.post('/bug-hunt/run', runBugHuntController);
 
 module.exports = router;
