@@ -163,6 +163,8 @@
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 18px;
   padding: 16px 18px;
+  /* Ensure the sidebar and main column share the same baseline height in the middle row. */
+  align-items: stretch;
 }
 
 .codado-appshell-main {
@@ -233,8 +235,8 @@
 .codado-sidebar {
   position: sticky;
   top: 72px;
-  align-self: start;
-  height: calc(100vh - 72px - 56px);
+  align-self: stretch;
+  height: calc(100% - 0px);
 }
 
 .codado-sidebar-frame {
