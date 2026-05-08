@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import Footer from './components/Footer'
-import Header from './components/Header'
+import FooterBar from './components/FooterBar'
+import Sidebar from './components/Sidebar'
+import Topbar from './components/Topbar'
 import TypewriterText from './components/TypewriterText'
 import BugHuntPage from './pages/BugHuntPage'
 import GuessLanguagePage from './pages/GuessLanguagePage'
 import HomePage from './pages/HomePage'
 import QuizPage from './pages/QuizPage'
+import RankingPage from './pages/RankingPage'
 import ResultPage from './pages/ResultPage'
+import TrackPage from './pages/TrackPage'
 import TerminalMode from './pages/TerminalMode'
 import type { OperatorSessionSnapshot, QuizResult, TerminalStartModeId } from './types'
 import { formatTerminalModeLabel, getModeFromLocation, getTerminalRank } from './lib/terminalShared'
@@ -154,7 +157,12 @@ function App() {
 
   const visualRoutes = (
     <Routes>
-      <Route path="/" element={<HomePage onEnterTerminalMode={() => navigate('/terminal')} />} />
+      <Route
+        path="/"
+        element={<HomePage operator={operatorSnapshot} onEnterTerminalMode={() => navigate('/terminal')} />}
+      />
+      <Route path="/trilhas/:trackId" element={<TrackPage />} />
+      <Route path="/ranking" element={<RankingPage operator={operatorSnapshot} />} />
       <Route
         path="/quiz/:levelId"
         element={
@@ -203,14 +211,31 @@ function App() {
       {isTerminalRoute ? (
         <div className="relative z-10 min-h-screen">{terminalRoutes}</div>
       ) : (
-        <div
-          className={`relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 ${
-            isSurvivalCrashActive ? 'app-global-crash-targets' : ''
-          }`}
-        >
-          <Header />
-          <main className="flex-1 py-10 md:py-16">{visualRoutes}</main>
-          <Footer />
+        <div className={`relative z-10 min-h-screen codado-appshell ${isSurvivalCrashActive ? 'app-global-crash-targets' : ''}`}>
+          <Topbar operator={operatorSnapshot} onEnterTerminalMode={() => navigate('/terminal')} />
+          <div className="codado-appshell-body">
+            <Sidebar
+              operator={operatorSnapshot}
+              activeItem={
+                location.pathname === '/ranking'
+                  ? 'ranking'
+                  : location.pathname.startsWith('/trilhas/')
+                    ? 'trilhas'
+                    : location.pathname === '/'
+                      ? 'home'
+                      : 'home'
+              }
+              onNavigateHome={() => navigate('/')}
+              onNavigateRanking={() => navigate('/ranking')}
+              onNavigateTerminal={() => navigate('/terminal')}
+              onScrollTo={(anchorId) => {
+                const element = document.getElementById(anchorId)
+                element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+            />
+            <main className="codado-appshell-main codado-crt">{visualRoutes}</main>
+          </div>
+          <FooterBar />
         </div>
       )}
 

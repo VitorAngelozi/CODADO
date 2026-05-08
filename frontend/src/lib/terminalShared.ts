@@ -43,16 +43,45 @@ export const TERMINAL_MODE_TO_PATH: Record<TerminalStartModeId, string[]> = {
 }
 
 export const RANK_THRESHOLDS: Array<{ minXp: number; rank: TerminalRank }> = [
-  { minXp: 80, rank: 'ARCHITECT' },
-  { minXp: 50, rank: 'ROOT' },
-  { minXp: 30, rank: 'EXECUTOR' },
-  { minXp: 15, rank: 'DEBUGGER' },
-  { minXp: 5, rank: 'OPERATOR' },
+  { minXp: 3000, rank: 'ARCHITECT' },
+  { minXp: 1500, rank: 'ROOT' },
+  { minXp: 700, rank: 'EXECUTOR' },
+  { minXp: 300, rank: 'DEBUGGER' },
+  { minXp: 100, rank: 'OPERATOR' },
   { minXp: 0, rank: 'INITIATE' },
 ]
 
 export function getTerminalRank(xp: number): TerminalRank {
   return RANK_THRESHOLDS.find((entry) => xp >= entry.minXp)?.rank ?? 'INITIATE'
+}
+
+export function getRankProgress(xp: number): {
+  currentRank: TerminalRank
+  currentMinXp: number
+  nextRank: TerminalRank | null
+  nextMinXp: number | null
+  remainingXp: number
+  progressPct: number
+} {
+  const currentEntry = RANK_THRESHOLDS.find((entry) => xp >= entry.minXp) ?? RANK_THRESHOLDS[RANK_THRESHOLDS.length - 1]
+  const nextEntry = [...RANK_THRESHOLDS].reverse().find((entry) => entry.minXp > xp) ?? null
+
+  const currentMinXp = currentEntry.minXp
+  const nextMinXp = nextEntry?.minXp ?? null
+  const remainingXp = nextMinXp ? Math.max(0, nextMinXp - xp) : 0
+
+  const progressPct = nextMinXp
+    ? Math.max(0, Math.min(100, Math.round(((xp - currentMinXp) / (nextMinXp - currentMinXp)) * 100)))
+    : 100
+
+  return {
+    currentRank: currentEntry.rank,
+    currentMinXp,
+    nextRank: nextEntry?.rank ?? null,
+    nextMinXp,
+    remainingXp,
+    progressPct,
+  }
 }
 
 export function getPathFromLocation(pathname: string): string[] {

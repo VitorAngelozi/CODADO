@@ -1,10 +1,10 @@
-﻿:root {
+:root {
   --bg: #0a0a0a;
   --panel: #101010;
-  --line: #2a2a2a;
-  --text: #ece8df;
-  --muted: #b6b0a5;
-  --accent: #d9d3c8;
+  --line: #343434;
+  --text: #f2eee5;
+  --muted: #d0c9bc;
+  --accent: #f1ebdf;
 }
 
 * {
@@ -16,7 +16,8 @@ body {
   font-family: var(--font-body), monospace;
   color: var(--text);
   background: var(--bg);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.004em;
+  line-height: 1.52;
 }
 
 #root {
@@ -30,5 +31,5 @@ body {
 
 .ascii-muted {
   color: var(--muted);
-  opacity: 0.8;
+  opacity: 0.92;
 }
