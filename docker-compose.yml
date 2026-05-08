@@ -14,3 +14,7 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
+      - SANDBOX_HOST_PREFIX=/c/Users/Vitor/Documents/Codado/codado-sandbox
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./codado-sandbox:/mnt/sandbox

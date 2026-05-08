@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import path from 'path';
-import os from 'os';
 import { spawn } from 'child_process';
 import crypto from 'crypto';
 import type {
@@ -11,6 +10,7 @@ import type {
 } from '../types/backend';
 
 const RUNNER_IMAGE = process.env.BUG_HUNT_RUNNER_IMAGE || 'codado-bughunt-runner:local';
+const SANDBOX_HOST_PREFIX = process.env.SANDBOX_HOST_PREFIX || '/codado-sandbox';
 const CODE_MAX_LENGTH = 12000;
 const EXEC_TIMEOUT_MS = Number(process.env.BUG_HUNT_EXEC_TIMEOUT_MS || 2000);
 
@@ -64,9 +64,11 @@ export async function runBugHuntInSandbox({
   }
 
   const sandboxId = `codado_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-  const sandboxDir = await fs.mkdtemp(path.join(os.tmpdir(), `${sandboxId}_`));
+  const sandboxDir = `/mnt/sandbox/${sandboxId}`;
 
   try {
+    // Criar diretório no volume compartilhado
+    await fs.mkdir(sandboxDir, { recursive: true });
     await fs.writeFile(path.join(sandboxDir, 'submission.py'), code, 'utf8');
     await fs.writeFile(path.join(sandboxDir, 'runner.py'), buildRunnerScript(challenge), 'utf8');
 
@@ -89,7 +91,7 @@ export async function runBugHuntInSandbox({
       '--cap-drop',
       'ALL',
       '-v',
-      `${sandboxDir}:/sandbox:ro`,
+      `${SANDBOX_HOST_PREFIX}/${sandboxId}:/sandbox:ro`,
       RUNNER_IMAGE,
       'python',
       '/sandbox/runner.py',
