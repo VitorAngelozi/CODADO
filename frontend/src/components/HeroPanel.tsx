@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BUILD_LABEL, NODE_LABEL, PROTOCOL_LABEL } from '../lib/buildInfo'
+import TypewriterText from './TypewriterText'
 
 interface HeroPanelProps {
   onEnterTerminalMode: () => void
@@ -25,8 +26,21 @@ function HeroPanel({ onEnterTerminalMode }: HeroPanelProps) {
       <div className="codado-hero-grid">
         <div className="codado-hero-left">
           <p className="ascii-muted codado-hero-kicker">{'// SYSTEM READY'}</p>
-          <h1 className="codado-hero-title">
-            CODADO<span className="codado-hero-cursor">_</span>
+          <h1 className="codado-hero-title codado-hero-title-loop" aria-label="CODADO">
+            <TypewriterText
+              text="CODADO"
+              speed={92}
+              holdMs={110}
+              loop
+              loopSuffix="..."
+              loopSuffixSpeed={110}
+              deleteSpeed={80}
+              loopEndBlinkCount={3}
+              loopRestartBlinkCount={2}
+              loopBlinkMs={165}
+              loopRestartDelayMs={160}
+              showCursor
+            />
           </h1>
           <p className="codado-hero-desc">
             Desafios interativos de programacao em estilo terminal.

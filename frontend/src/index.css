@@ -17,6 +17,10 @@
   animation: blink 1s steps(1, end) infinite;
 }
 
+.cursor-blink-hidden {
+  opacity: 0;
+}
+
 .codado-green {
   color: rgba(162, 247, 193, 0.96);
 }
@@ -421,10 +425,14 @@
 .codado-hero-title {
   font-family: var(--font-display), monospace;
   margin: 12px 0 0;
-  font-size: 44px;
+  font-size: 50px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-weight: 900;
+  display: inline-block;
+  width: 14ch;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .codado-hero-cursor {
