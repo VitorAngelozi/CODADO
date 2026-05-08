@@ -16,7 +16,6 @@ const levelColors: Record<QuizLevelId, string> = {
   survival: 'bg-[var(--accent)]',
 }
 const HARDCORE_QUESTION_TIME = 15
-const SURVIVAL_CRASH_DURATION = 1400
 
 function isQuizLevelId(levelId?: string): levelId is QuizLevelId {
   return (
@@ -28,7 +27,15 @@ function isQuizLevelId(levelId?: string): levelId is QuizLevelId {
   )
 }
 
-function QuizPage() {
+interface QuizPageProps {
+  isSurvivalCrashActive?: boolean
+  onTriggerSurvivalCrash?: () => void
+}
+
+function QuizPage({
+  isSurvivalCrashActive = false,
+  onTriggerSurvivalCrash,
+}: QuizPageProps) {
   const navigate = useNavigate()
   const { levelId } = useParams<{ levelId?: string }>()
   const safeLevelId = isQuizLevelId(levelId) ? levelId : undefined
@@ -39,7 +46,6 @@ function QuizPage() {
   const [answersByIndex, setAnswersByIndex] = useState<Record<number, number | null>>({})
   const [feedbackByIndex, setFeedbackByIndex] = useState<Record<number, QuizFeedback>>({})
   const [timeLeft, setTimeLeft] = useState(HARDCORE_QUESTION_TIME)
-  const [isSurvivalCrashed, setIsSurvivalCrashed] = useState(false)
 
   const currentChallenge = challenges[currentIndex]
   const selectedIndex = answersByIndex[currentIndex] ?? null
@@ -65,21 +71,10 @@ function QuizPage() {
       setAnswersByIndex({})
       setFeedbackByIndex({})
       setTimeLeft(HARDCORE_QUESTION_TIME)
-      setIsSurvivalCrashed(false)
     })
 
     return () => window.cancelAnimationFrame(resetFrame)
   }, [safeLevelId, navigate])
-
-  useEffect(() => {
-    if (!isSurvivalCrashed) return
-
-    const crashTimer = window.setTimeout(() => {
-      navigate('/', { replace: true })
-    }, SURVIVAL_CRASH_DURATION)
-
-    return () => window.clearTimeout(crashTimer)
-  }, [isSurvivalCrashed, navigate])
 
   useEffect(() => {
     if (safeLevelId !== 'hardcore') return
@@ -128,7 +123,7 @@ function QuizPage() {
   }, [currentIndex, safeLevelId, feedback])
 
   const handleSelect = (idx: number) => {
-    if (isShowingFeedback || isSurvivalCrashed) return
+    if (isShowingFeedback || isSurvivalCrashActive) return
     setAnswersByIndex((previous) => ({
       ...previous,
       [currentIndex]: idx,
@@ -136,11 +131,11 @@ function QuizPage() {
   }
 
   const confirmAnswer = () => {
-    if (!canConfirm || isShowingFeedback || !currentChallenge || isSurvivalCrashed) return
+    if (!canConfirm || isShowingFeedback || !currentChallenge || isSurvivalCrashActive) return
     const isCorrect = selectedIndex === currentChallenge.correctIndex
 
     if (isSurvivalMode && !isCorrect) {
-      setIsSurvivalCrashed(true)
+      onTriggerSurvivalCrash?.()
       return
     }
 
@@ -155,7 +150,7 @@ function QuizPage() {
   }
 
   const nextStep = () => {
-    if (isSurvivalCrashed) return
+    if (isSurvivalCrashActive) return
 
     const isLast = currentIndex === challenges.length - 1
     if (isLast && safeLevelId) {
@@ -178,7 +173,7 @@ function QuizPage() {
   }
 
   const previousStep = () => {
-    if (isSurvivalMode || isSurvivalCrashed) return
+    if (isSurvivalMode || isSurvivalCrashActive) return
     if (currentIndex === 0) return
     setCurrentIndex((value) => value - 1)
   }
@@ -201,28 +196,9 @@ function QuizPage() {
       animate={{ opacity: 1 }}
       className={`relative mx-auto w-full max-w-3xl space-y-5 ${hardcoreShakeClass}`}
     >
-      {isSurvivalCrashed && (
-        <div className="survival-crash-overlay" aria-hidden="true">
-          <div className="hardcore-crack-burst" />
-          <div className="hardcore-crack-noise" />
-          <div className="survival-crash-copy">
-            <p className="ascii-muted text-xs tracking-[0.28em]">[ SIGNAL LOST ]</p>
-            <h2
-              className="glitch mt-3 font-display text-3xl font-extrabold uppercase tracking-[0.16em] text-[var(--text)] md:text-5xl"
-              data-text="VOCE PERDEU"
-            >
-              VOCE PERDEU
-            </h2>
-            <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-[var(--muted)]">
-              Uma resposta errada encerra a run. Reiniciando o sistema...
-            </p>
-          </div>
-        </div>
-      )}
-
       <button
         onClick={() => navigate('/')}
-        disabled={isSurvivalCrashed}
+        disabled={isSurvivalCrashActive}
         className="terminal-panel w-fit px-4 py-2 text-xs font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] hover:bg-[rgba(217,211,200,0.08)] hover:shadow-[0_0_0_1px_rgba(217,211,200,0.35)] focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:bg-[rgba(217,211,200,0.1)] focus-visible:shadow-[0_0_0_2px_rgba(217,211,200,0.45)]"
       >
         VOLTAR
@@ -234,7 +210,13 @@ function QuizPage() {
         colorClass={levelColors[safeLevelId]}
       />
       {safeLevelId === 'hardcore' && (
-        <div className={timeLeft <= 5 ? 'hardcore-timer-critical ml-auto w-fit text-xs tracking-[0.16em]' : 'hardcore-timer ml-auto w-fit text-xs tracking-[0.16em]'}>
+        <div
+          className={`${
+            timeLeft <= 5
+              ? 'hardcore-timer-critical ml-auto w-fit text-xs tracking-[0.16em]'
+              : 'hardcore-timer ml-auto w-fit text-xs tracking-[0.16em]'
+          }`}
+        >
           {String(timeLeft).padStart(2, '0')}s
         </div>
       )}
@@ -276,7 +258,7 @@ function QuizPage() {
           <button
             type="button"
             onClick={previousStep}
-            disabled={currentIndex === 0 || isSurvivalCrashed}
+            disabled={currentIndex === 0 || isSurvivalCrashActive}
             className="terminal-panel flex-1 px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             VOLTAR QUESTAO
@@ -284,7 +266,7 @@ function QuizPage() {
         )}
         <button
           onClick={isShowingFeedback ? nextStep : confirmAnswer}
-          disabled={isSurvivalCrashed || (!isShowingFeedback && !canConfirm)}
+          disabled={isSurvivalCrashActive || (!isShowingFeedback && !canConfirm)}
           className="terminal-panel flex-1 px-6 py-4 text-sm font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isShowingFeedback ? (currentIndex === challenges.length - 1 ? 'FINALIZAR' : 'PROXIMA QUESTAO') : 'CONFIRMAR'}

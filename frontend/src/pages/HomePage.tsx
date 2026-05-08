@@ -17,7 +17,11 @@ function isQuizLevelId(id: DifficultyCardLevel['id']): id is QuizLevelId {
   )
 }
 
-function HomePage() {
+interface HomePageProps {
+  onEnterTerminalMode?: () => void
+}
+
+function HomePage({ onEnterTerminalMode }: HomePageProps) {
   const navigate = useNavigate()
   const [isHardcoreBooting, setIsHardcoreBooting] = useState(false)
   const bootTimerRef = useRef<number | null>(null)
@@ -53,7 +57,7 @@ function HomePage() {
         </div>
       )}
 
-      <TerminalHero />
+      <TerminalHero onEnterTerminalMode={onEnterTerminalMode} />
       <TrackSection
         code="[ TRILHA 01 ]"
         title="Logica de Programacao"

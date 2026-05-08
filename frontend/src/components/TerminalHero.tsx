@@ -1,6 +1,10 @@
 import { motion } from 'framer-motion'
 
-function TerminalHero() {
+interface TerminalHeroProps {
+  onEnterTerminalMode?: () => void
+}
+
+function TerminalHero({ onEnterTerminalMode }: TerminalHeroProps) {
   return (
     <section className="terminal-panel scanline px-6 py-10 md:px-10 md:py-14">
       <motion.p
@@ -33,6 +37,18 @@ function TerminalHero() {
 |  SELECT DIFFICULTY TO START |
 +-----------------------------+`}
       </pre>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={onEnterTerminalMode}
+          className="terminal-panel px-5 py-3 text-xs font-bold tracking-[0.18em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] hover:bg-[rgba(217,211,200,0.08)]"
+        >
+          ENTER TERMINAL MODE
+        </button>
+        <p className="ascii-muted self-center text-xs tracking-[0.14em]">
+          {'> iniciar protocolo terminal'}
+        </p>
+      </div>
     </section>
   )
 }

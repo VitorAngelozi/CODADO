@@ -14,6 +14,30 @@ export type QuizLevelId = 'easy' | 'medium' | 'hard' | 'hardcore' | 'survival'
 export type BugHuntModeId = 'normal' | 'hard'
 export type DifficultyCardLevelId = QuizLevelId | 'bug_hunt_normal' | 'bug_hunt_hard'
 export type QuizFeedbackStatus = 'correct' | 'wrong' | 'timeout'
+export type TerminalStartModeId =
+  | 'facil'
+  | 'medio'
+  | 'dificil'
+  | 'hardcore'
+  | 'sobrevivencia'
+  | 'caca-ao-bug'
+  | 'caca-ao-bug-hard-mode'
+export type TerminalRank =
+  | 'INITIATE'
+  | 'OPERATOR'
+  | 'DEBUGGER'
+  | 'EXECUTOR'
+  | 'ROOT'
+  | 'ARCHITECT'
+
+export interface OperatorSessionSnapshot {
+  xp: number
+  rank: TerminalRank
+  streak: number
+  bugsResolved: number
+  favoriteModeLabel: string
+  activeTrackLabel: string
+}
 
 export type Level = ApiLevel
 
