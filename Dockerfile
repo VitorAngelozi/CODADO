@@ -14,6 +14,9 @@ RUN npm prune --omit=dev
 
 FROM node:20-alpine
 
+# Instalar Docker CLI
+RUN apk add --no-cache docker-cli
+
 WORKDIR /app
 
 COPY --from=builder /app/package*.json ./
