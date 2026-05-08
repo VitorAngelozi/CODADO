@@ -236,7 +236,7 @@
   position: sticky;
   top: 72px;
   align-self: stretch;
-  height: calc(100% - 0px);
+  height: 100%;
 }
 
 .codado-sidebar-frame {
