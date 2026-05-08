@@ -1,16 +1,16 @@
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ResultCard from '../components/ResultCard'
-import type { QuizLevelId, QuizResult, ResultPageState } from '../types'
+import type { QuizResult, ResultPageState, TerminalStartModeId } from '../types'
 
 interface ResultPageProps {
-  onRecordResult?: (levelId: QuizLevelId, result: QuizResult, resultKey: string) => void
+  onRecordResult?: (sessionMode: TerminalStartModeId, result: QuizResult, resultKey: string) => void
 }
 
 function isResultPageState(value: unknown): value is ResultPageState {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<ResultPageState>
-  return Boolean(candidate.levelId && candidate.result)
+  return Boolean(candidate.levelId && candidate.result && candidate.retryPath && candidate.sessionMode)
 }
 
 function ResultPage({ onRecordResult }: ResultPageProps) {
@@ -19,7 +19,7 @@ function ResultPage({ onRecordResult }: ResultPageProps) {
 
   useEffect(() => {
     if (!isResultPageState(state)) return
-    onRecordResult?.(state.levelId, state.result, key)
+    onRecordResult?.(state.sessionMode, state.result, key)
   }, [key, onRecordResult, state])
 
   if (!isResultPageState(state)) {
@@ -29,11 +29,7 @@ function ResultPage({ onRecordResult }: ResultPageProps) {
 
   return (
     <div className="relative">
-      <ResultCard
-        result={state.result}
-        onRetry={() => navigate(`/quiz/${state.levelId}`)}
-        onBack={() => navigate('/')}
-      />
+      <ResultCard result={state.result} onRetry={() => navigate(state.retryPath)} onBack={() => navigate('/')} />
     </div>
   )
 }

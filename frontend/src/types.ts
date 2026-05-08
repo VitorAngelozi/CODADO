@@ -11,15 +11,25 @@ import type {
 } from '../../shared/contracts'
 
 export type QuizLevelId = 'easy' | 'medium' | 'hard' | 'hardcore' | 'survival'
+export type GuessLanguageLevelId = 'easy' | 'medium' | 'hard'
 export type BugHuntModeId = 'normal' | 'hard'
-export type DifficultyCardLevelId = QuizLevelId | 'bug_hunt_normal' | 'bug_hunt_hard'
+export type DifficultyCardLevelId =
+  | QuizLevelId
+  | 'bug_hunt_normal'
+  | 'bug_hunt_hard'
+  | 'guess_language_easy'
+  | 'guess_language_medium'
+  | 'guess_language_hard'
 export type QuizFeedbackStatus = 'correct' | 'wrong' | 'timeout'
 export type TerminalStartModeId =
-  | 'facil'
-  | 'medio'
-  | 'dificil'
-  | 'hardcore'
-  | 'sobrevivencia'
+  | 'logica_facil'
+  | 'logica_medio'
+  | 'logica_dificil'
+  | 'logica_hardcore'
+  | 'logica_sobrevivencia'
+  | 'linguagem_facil'
+  | 'linguagem_medio'
+  | 'linguagem_dificil'
   | 'caca-ao-bug'
   | 'caca-ao-bug-hard-mode'
 export type TerminalRank =
@@ -47,6 +57,12 @@ export interface FrontendLevel {
   desc: string
 }
 
+export interface GuessLanguageLevel {
+  id: GuessLanguageLevelId
+  nome: string
+  desc: string
+}
+
 export interface DifficultyCardLevel {
   id: DifficultyCardLevelId
   nome: string
@@ -62,6 +78,8 @@ export interface Challenge {
   explanation: string
 }
 
+export type GuessLanguageChallenge = Challenge
+
 export interface QuizFeedback {
   status: QuizFeedbackStatus
   correct: boolean
@@ -75,7 +93,9 @@ export interface QuizResult {
 }
 
 export interface ResultPageState {
-  levelId: QuizLevelId
+  levelId: QuizLevelId | GuessLanguageLevelId
+  retryPath: string
+  sessionMode: TerminalStartModeId
   result: QuizResult
 }
 
@@ -111,3 +131,4 @@ export type {
   SubmitAnswerItem,
   SubmitAnswersResponse,
 }
+

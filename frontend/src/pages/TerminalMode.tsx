@@ -23,11 +23,14 @@ import {
 
 const ROOT_PATH = ['codado']
 const QUIZ_PROTOCOL_MODES: TerminalStartModeId[] = [
-  'facil',
-  'medio',
-  'dificil',
-  'hardcore',
-  'sobrevivencia',
+  'logica_facil',
+  'logica_medio',
+  'logica_dificil',
+  'logica_hardcore',
+  'logica_sobrevivencia',
+  'linguagem_facil',
+  'linguagem_medio',
+  'linguagem_dificil',
 ]
 
 interface TerminalModeProps {
@@ -63,11 +66,14 @@ function isChoiceCommand(raw: string, optionCount: number): number | null {
 
 function formatModeLabel(mode: TerminalStartModeId): string {
   const labels: Record<TerminalStartModeId, string> = {
-    facil: 'modo facil',
-    medio: 'modo medio',
-    dificil: 'modo dificil',
-    hardcore: 'modo hardcore',
-    sobrevivencia: 'modo sobrevivencia',
+    logica_facil: 'logica // facil',
+    logica_medio: 'logica // medio',
+    logica_dificil: 'logica // dificil',
+    logica_hardcore: 'logica // hardcore',
+    logica_sobrevivencia: 'logica // sobrevivencia',
+    linguagem_facil: 'adivinhe a linguagem // facil',
+    linguagem_medio: 'adivinhe a linguagem // medio',
+    linguagem_dificil: 'adivinhe a linguagem // dificil',
     'caca-ao-bug': 'caca ao bug',
     'caca-ao-bug-hard-mode': 'caca ao bug hard mode',
   }
@@ -90,7 +96,7 @@ function buildQuizQuestionLines(protocol: Extract<ActiveTerminalProtocol, { kind
   return [
     `> ${formatModeLabel(protocol.modeId)} // desafio ${protocol.currentIndex + 1}/${protocol.challenges.length}`,
     challenge.prompt,
-    `[python]\n${codeBlock}`,
+    `[snippet]\n${codeBlock}`,
     ...optionLines,
     '> responda com 1-4, a-d, "answer 2" ou use "abort" para voltar ao shell.',
   ]
@@ -131,7 +137,7 @@ function TerminalMode({
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const prompt = useMemo(() => buildPrompt(currentPath), [currentPath])
-  const isHardcoreSignalActive = activeProtocol?.modeId === 'hardcore'
+  const isHardcoreSignalActive = activeProtocol?.modeId === 'logica_hardcore'
 
   useEffect(() => {
     if (!bootCompleted) return
@@ -306,7 +312,7 @@ function TerminalMode({
     setActiveProtocol(null)
     setCurrentPath((previous) => [...previous])
 
-    if (modeId === 'sobrevivencia') {
+    if (modeId === 'logica_sobrevivencia') {
       setCurrentPath(['codado', 'trilha-01', 'sobrevivencia'])
     }
   }
@@ -337,7 +343,7 @@ function TerminalMode({
         { text: `> ${challenge.explanation}` },
       ])
 
-      if (protocol.modeId === 'sobrevivencia') {
+      if (protocol.modeId === 'logica_sobrevivencia') {
         finishProtocol(protocol.modeId, [
           '> falha critica detectada.',
           '> modo sobrevivencia encerrado. reinicie o protocolo para tentar de novo.',

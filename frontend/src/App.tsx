@@ -4,22 +4,13 @@ import Footer from './components/Footer'
 import Header from './components/Header'
 import TypewriterText from './components/TypewriterText'
 import BugHuntPage from './pages/BugHuntPage'
+import GuessLanguagePage from './pages/GuessLanguagePage'
 import HomePage from './pages/HomePage'
 import QuizPage from './pages/QuizPage'
 import ResultPage from './pages/ResultPage'
 import TerminalMode from './pages/TerminalMode'
-import type {
-  OperatorSessionSnapshot,
-  QuizLevelId,
-  QuizResult,
-  TerminalStartModeId,
-} from './types'
-import {
-  formatTerminalModeLabel,
-  getModeFromLocation,
-  getTerminalRank,
-  QUIZ_LEVEL_TO_TERMINAL_MODE,
-} from './lib/terminalShared'
+import type { OperatorSessionSnapshot, QuizResult, TerminalStartModeId } from './types'
+import { formatTerminalModeLabel, getModeFromLocation, getTerminalRank } from './lib/terminalShared'
 
 type SurvivalCrashPhase = 'idle' | 'impact' | 'reboot'
 
@@ -27,11 +18,14 @@ const SURVIVAL_CRASH_IMPACT_DURATION = 1250
 const SURVIVAL_CRASH_REBOOT_DURATION = 1050
 
 const INITIAL_MODE_STARTS: Record<TerminalStartModeId, number> = {
-  facil: 0,
-  medio: 0,
-  dificil: 0,
-  hardcore: 0,
-  sobrevivencia: 0,
+  logica_facil: 0,
+  logica_medio: 0,
+  logica_dificil: 0,
+  logica_hardcore: 0,
+  logica_sobrevivencia: 0,
+  linguagem_facil: 0,
+  linguagem_medio: 0,
+  linguagem_dificil: 0,
   'caca-ao-bug': 0,
   'caca-ao-bug-hard-mode': 0,
 }
@@ -89,13 +83,13 @@ function App() {
     setSurvivalCrashPhase((currentPhase) => (currentPhase === 'idle' ? 'impact' : currentPhase))
   }
 
-  const handleRecordResult = (levelId: QuizLevelId, result: QuizResult, resultKey: string) => {
+  const handleRecordResult = (sessionMode: TerminalStartModeId, result: QuizResult, resultKey: string) => {
     if (processedResultKeysRef.current.has(resultKey)) return
 
     processedResultKeysRef.current.add(resultKey)
     setSessionXp((previous) => previous + result.xp)
     setStreak((previous) => (result.correct === result.total ? previous + result.correct : 0))
-    setLastStartedMode(QUIZ_LEVEL_TO_TERMINAL_MODE[levelId])
+    setLastStartedMode(sessionMode)
   }
 
   const registerProtocolStart = (mode: TerminalStartModeId) => {
@@ -170,6 +164,7 @@ function App() {
           />
         }
       />
+      <Route path="/guess-language/:levelId" element={<GuessLanguagePage />} />
       <Route path="/bug-hunt" element={<Navigate to="/bug-hunt/normal" replace />} />
       <Route path="/bug-hunt/:modeId" element={<BugHuntPage />} />
       <Route path="/result" element={<ResultPage onRecordResult={handleRecordResult} />} />

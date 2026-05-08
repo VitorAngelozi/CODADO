@@ -9,6 +9,9 @@ const levelAscii: Record<DifficultyCardLevel['id'], string> = {
   survival: '[ 05 ]',
   bug_hunt_normal: '[ 06 ]',
   bug_hunt_hard: '[ 07 ]',
+  guess_language_easy: '[ 08 ]',
+  guess_language_medium: '[ 09 ]',
+  guess_language_hard: '[ 10 ]',
 }
 
 interface DifficultyCardProps {
@@ -32,7 +35,7 @@ function DifficultyCard({ level, onSelect }: DifficultyCardProps) {
         {level.nome}
       </h3>
       <p className="mt-3 min-h-[48px] text-sm leading-relaxed text-[var(--muted)]">{level.desc}</p>
-      <p className="mt-5 text-xs tracking-[0.15em] text-[var(--accent)]">PRESS ENTER →</p>
+      <p className="mt-5 text-xs tracking-[0.15em] text-[var(--accent)]">PRESS ENTER -&gt;</p>
     </motion.button>
   )
 }

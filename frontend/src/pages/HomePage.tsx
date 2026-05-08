@@ -4,6 +4,7 @@ import DifficultyCard from '../components/DifficultyCard'
 import PageFrame from '../components/PageFrame'
 import TerminalHero from '../components/TerminalHero'
 import TrackSection from '../components/TrackSection'
+import { GUESS_LANGUAGE_LEVELS } from '../data/guessLanguageChallenges'
 import { LEVELS } from '../data/challenges'
 import type { DifficultyCardLevel, QuizLevelId } from '../types'
 
@@ -89,6 +90,24 @@ function HomePage({ onEnterTerminalMode }: HomePageProps) {
           }}
           onSelect={() => navigate('/bug-hunt/hard')}
         />
+      </TrackSection>
+
+      <TrackSection
+        code="[ TRILHA 03 ]"
+        title="Adivinhe a Linguagem"
+        description="Receba trechos soltos de codigo e descubra qual linguagem esta por tras deles, do obvio ao enganador."
+      >
+        {GUESS_LANGUAGE_LEVELS.map((level) => (
+          <DifficultyCard
+            key={level.id}
+            level={{
+              id: `guess_language_${level.id}` as const,
+              nome: level.nome,
+              desc: level.desc,
+            }}
+            onSelect={(selectedId) => navigate(`/guess-language/${selectedId.replace('guess_language_', '')}`)}
+          />
+        ))}
       </TrackSection>
     </PageFrame>
   )

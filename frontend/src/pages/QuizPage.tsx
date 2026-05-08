@@ -6,6 +6,7 @@ import ProgressBar from '../components/ProgressBar'
 import QuestionCard from '../components/QuestionCard'
 import TypewriterText from '../components/TypewriterText'
 import { getChallengesForLevel } from '../data/challenges'
+import { QUIZ_LEVEL_TO_TERMINAL_MODE } from '../lib/terminalShared'
 import type { QuizFeedback, QuizLevelId, ResultPageState } from '../types'
 
 const levelColors: Record<QuizLevelId, string> = {
@@ -55,7 +56,7 @@ function QuizPage({
   const isSurvivalMode = safeLevelId === 'survival'
   const correct = useMemo(
     () => Object.values(feedbackByIndex).filter((item) => item.correct).length,
-    [feedbackByIndex]
+    [feedbackByIndex],
   )
   const xp = correct
 
@@ -156,6 +157,8 @@ function QuizPage({
     if (isLast && safeLevelId) {
       const resultState: ResultPageState = {
         levelId: safeLevelId,
+        retryPath: `/quiz/${safeLevelId}`,
+        sessionMode: QUIZ_LEVEL_TO_TERMINAL_MODE[safeLevelId],
         result: {
           total: challenges.length,
           correct,

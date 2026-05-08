@@ -1,6 +1,14 @@
 import { BUG_HUNT_MODES } from '../data/bugHuntChallenges'
+import { getGuessLanguageChallenges } from '../data/guessLanguageChallenges'
 import { getChallengesForLevel } from '../data/challenges'
-import type { BugHuntChallenge, Challenge, QuizLevelId, TerminalRank, TerminalStartModeId } from '../types'
+import type {
+  BugHuntChallenge,
+  Challenge,
+  GuessLanguageLevelId,
+  QuizLevelId,
+  TerminalRank,
+  TerminalStartModeId,
+} from '../types'
 import { ROOT_TERMINAL_PATH, RANK_THRESHOLDS } from './terminalShared'
 
 export type TerminalModeCommand =
@@ -106,17 +114,24 @@ export const TERMINAL_MODE_TREE: TerminalDirectoryNode = {
   children: {
     'trilha-01': {
       children: {
-        facil: { modeId: 'facil' },
-        medio: { modeId: 'medio' },
-        dificil: { modeId: 'dificil' },
-        hardcore: { modeId: 'hardcore' },
-        sobrevivencia: { modeId: 'sobrevivencia' },
+        facil: { modeId: 'logica_facil' },
+        medio: { modeId: 'logica_medio' },
+        dificil: { modeId: 'logica_dificil' },
+        hardcore: { modeId: 'logica_hardcore' },
+        sobrevivencia: { modeId: 'logica_sobrevivencia' },
       },
     },
     'trilha-02': {
       children: {
         'caca-ao-bug': { modeId: 'caca-ao-bug' },
         'caca-ao-bug-hard-mode': { modeId: 'caca-ao-bug-hard-mode' },
+      },
+    },
+    'trilha-03': {
+      children: {
+        facil: { modeId: 'linguagem_facil' },
+        medio: { modeId: 'linguagem_medio' },
+        dificil: { modeId: 'linguagem_dificil' },
       },
     },
     logs: {},
@@ -150,14 +165,30 @@ export const TERMINAL_LOGS: TerminalLogEntry[] = [
 ]
 
 const QUIZ_MODE_TO_LEVEL_ID: Record<
-  Extract<TerminalStartModeId, 'facil' | 'medio' | 'dificil' | 'hardcore' | 'sobrevivencia'>,
+  Extract<
+    TerminalStartModeId,
+    | 'logica_facil'
+    | 'logica_medio'
+    | 'logica_dificil'
+    | 'logica_hardcore'
+    | 'logica_sobrevivencia'
+  >,
   QuizLevelId
 > = {
-  facil: 'easy',
-  medio: 'medium',
-  dificil: 'hard',
-  hardcore: 'hardcore',
-  sobrevivencia: 'survival',
+  logica_facil: 'easy',
+  logica_medio: 'medium',
+  logica_dificil: 'hard',
+  logica_hardcore: 'hardcore',
+  logica_sobrevivencia: 'survival',
+}
+
+const LANGUAGE_MODE_TO_LEVEL_ID: Record<
+  Extract<TerminalStartModeId, 'linguagem_facil' | 'linguagem_medio' | 'linguagem_dificil'>,
+  GuessLanguageLevelId
+> = {
+  linguagem_facil: 'easy',
+  linguagem_medio: 'medium',
+  linguagem_dificil: 'hard',
 }
 
 const BUG_PROTOCOL_LIBRARY: BugProtocolSource[] = [
@@ -255,10 +286,7 @@ export function buildPrompt(path: string[]): string {
   return `/${path.join('/')}>`
 }
 
-export function createHistoryEntry(
-  kind: TerminalHistoryKind,
-  text: string,
-): TerminalHistoryEntry {
+export function createHistoryEntry(kind: TerminalHistoryKind, text: string): TerminalHistoryEntry {
   return {
     id: `${kind}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     kind,
@@ -289,8 +317,17 @@ export function listTerminalEntries(path: string[]): string[] {
 }
 
 export function getQuizProtocol(modeId: TerminalStartModeId): Challenge[] {
-  if (!(modeId in QUIZ_MODE_TO_LEVEL_ID)) return []
-  return getChallengesForLevel(QUIZ_MODE_TO_LEVEL_ID[modeId as keyof typeof QUIZ_MODE_TO_LEVEL_ID])
+  if (modeId in QUIZ_MODE_TO_LEVEL_ID) {
+    return getChallengesForLevel(QUIZ_MODE_TO_LEVEL_ID[modeId as keyof typeof QUIZ_MODE_TO_LEVEL_ID])
+  }
+
+  if (modeId in LANGUAGE_MODE_TO_LEVEL_ID) {
+    return getGuessLanguageChallenges(
+      LANGUAGE_MODE_TO_LEVEL_ID[modeId as keyof typeof LANGUAGE_MODE_TO_LEVEL_ID],
+    )
+  }
+
+  return []
 }
 
 export function getBugProtocol(modeId: TerminalStartModeId): TerminalBugScenario[] {
@@ -344,7 +381,14 @@ export function buildProfileSnapshot(
   starts: Record<TerminalStartModeId, number>,
 ): TerminalProfileSnapshot {
   const logicStarts =
-    starts.facil + starts.medio + starts.dificil + starts.hardcore + starts.sobrevivencia
+    starts.logica_facil +
+    starts.logica_medio +
+    starts.logica_dificil +
+    starts.logica_hardcore +
+    starts.logica_sobrevivencia +
+    starts.linguagem_facil +
+    starts.linguagem_medio +
+    starts.linguagem_dificil
   const debugStarts = starts['caca-ao-bug'] + starts['caca-ao-bug-hard-mode']
   const totalStarts = logicStarts + debugStarts
 
@@ -353,9 +397,10 @@ export function buildProfileSnapshot(
     operator.bugsResolved >= 8 ? 'estavel' : operator.bugsResolved >= 3 ? 'oscilante' : 'instavel'
   const velocidade = operator.streak >= 6 ? 'alta' : operator.xp >= 12 ? 'media' : 'baixa'
   const atencao =
-    operator.favoriteModeLabel === 'hardcore' ||
-    operator.favoriteModeLabel === 'sobrevivencia' ||
-    operator.favoriteModeLabel === 'caca-ao-bug-hard-mode'
+    operator.favoriteModeLabel === 'logica_hardcore' ||
+    operator.favoriteModeLabel === 'logica_sobrevivencia' ||
+    operator.favoriteModeLabel === 'caca-ao-bug-hard-mode' ||
+    operator.favoriteModeLabel === 'linguagem_dificil'
       ? 'alta'
       : operator.xp >= 8
         ? 'media'
@@ -372,4 +417,3 @@ export function buildProfileSnapshot(
 export function findTerminalLog(name: string): TerminalLogEntry | undefined {
   return TERMINAL_LOGS.find((entry) => entry.name === name)
 }
-

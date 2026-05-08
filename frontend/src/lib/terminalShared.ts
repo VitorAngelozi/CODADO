@@ -1,31 +1,43 @@
-import type { QuizLevelId, TerminalRank, TerminalStartModeId } from '../types'
+import type { GuessLanguageLevelId, QuizLevelId, TerminalRank, TerminalStartModeId } from '../types'
 
 export const ROOT_TERMINAL_PATH = ['codado'] as const
 
 export const QUIZ_LEVEL_TO_TERMINAL_MODE: Record<QuizLevelId, TerminalStartModeId> = {
-  easy: 'facil',
-  medium: 'medio',
-  hard: 'dificil',
-  hardcore: 'hardcore',
-  survival: 'sobrevivencia',
+  easy: 'logica_facil',
+  medium: 'logica_medio',
+  hard: 'logica_dificil',
+  hardcore: 'logica_hardcore',
+  survival: 'logica_sobrevivencia',
+}
+
+export const GUESS_LANGUAGE_LEVEL_TO_TERMINAL_MODE: Record<GuessLanguageLevelId, TerminalStartModeId> = {
+  easy: 'linguagem_facil',
+  medium: 'linguagem_medio',
+  hard: 'linguagem_dificil',
 }
 
 export const TERMINAL_MODE_TO_ROUTE: Record<TerminalStartModeId, string> = {
-  facil: '/quiz/easy',
-  medio: '/quiz/medium',
-  dificil: '/quiz/hard',
-  hardcore: '/quiz/hardcore',
-  sobrevivencia: '/quiz/survival',
+  logica_facil: '/quiz/easy',
+  logica_medio: '/quiz/medium',
+  logica_dificil: '/quiz/hard',
+  logica_hardcore: '/quiz/hardcore',
+  logica_sobrevivencia: '/quiz/survival',
+  linguagem_facil: '/guess-language/easy',
+  linguagem_medio: '/guess-language/medium',
+  linguagem_dificil: '/guess-language/hard',
   'caca-ao-bug': '/bug-hunt/normal',
   'caca-ao-bug-hard-mode': '/bug-hunt/hard',
 }
 
 export const TERMINAL_MODE_TO_PATH: Record<TerminalStartModeId, string[]> = {
-  facil: ['codado', 'trilha-01', 'facil'],
-  medio: ['codado', 'trilha-01', 'medio'],
-  dificil: ['codado', 'trilha-01', 'dificil'],
-  hardcore: ['codado', 'trilha-01', 'hardcore'],
-  sobrevivencia: ['codado', 'trilha-01', 'sobrevivencia'],
+  logica_facil: ['codado', 'trilha-01', 'facil'],
+  logica_medio: ['codado', 'trilha-01', 'medio'],
+  logica_dificil: ['codado', 'trilha-01', 'dificil'],
+  logica_hardcore: ['codado', 'trilha-01', 'hardcore'],
+  logica_sobrevivencia: ['codado', 'trilha-01', 'sobrevivencia'],
+  linguagem_facil: ['codado', 'trilha-03', 'facil'],
+  linguagem_medio: ['codado', 'trilha-03', 'medio'],
+  linguagem_dificil: ['codado', 'trilha-03', 'dificil'],
   'caca-ao-bug': ['codado', 'trilha-02', 'caca-ao-bug'],
   'caca-ao-bug-hard-mode': ['codado', 'trilha-02', 'caca-ao-bug-hard-mode'],
 }
@@ -51,6 +63,13 @@ export function getPathFromLocation(pathname: string): string[] {
     }
   }
 
+  if (pathname.startsWith('/guess-language/')) {
+    const level = pathname.split('/')[2] as GuessLanguageLevelId | undefined
+    if (level && level in GUESS_LANGUAGE_LEVEL_TO_TERMINAL_MODE) {
+      return TERMINAL_MODE_TO_PATH[GUESS_LANGUAGE_LEVEL_TO_TERMINAL_MODE[level]]
+    }
+  }
+
   if (pathname === '/bug-hunt/normal') return TERMINAL_MODE_TO_PATH['caca-ao-bug']
   if (pathname === '/bug-hunt/hard') return TERMINAL_MODE_TO_PATH['caca-ao-bug-hard-mode']
 
@@ -65,6 +84,13 @@ export function getModeFromLocation(pathname: string): TerminalStartModeId | nul
     }
   }
 
+  if (pathname.startsWith('/guess-language/')) {
+    const level = pathname.split('/')[2] as GuessLanguageLevelId | undefined
+    if (level && level in GUESS_LANGUAGE_LEVEL_TO_TERMINAL_MODE) {
+      return GUESS_LANGUAGE_LEVEL_TO_TERMINAL_MODE[level]
+    }
+  }
+
   if (pathname === '/bug-hunt/normal') return 'caca-ao-bug'
   if (pathname === '/bug-hunt/hard') return 'caca-ao-bug-hard-mode'
 
@@ -75,15 +101,17 @@ export function formatTerminalModeLabel(mode: TerminalStartModeId | null): strin
   if (!mode) return 'nenhuma'
 
   const labels: Record<TerminalStartModeId, string> = {
-    facil: 'facil',
-    medio: 'medio',
-    dificil: 'dificil',
-    hardcore: 'hardcore',
-    sobrevivencia: 'sobrevivencia',
+    logica_facil: 'logica_facil',
+    logica_medio: 'logica_medio',
+    logica_dificil: 'logica_dificil',
+    logica_hardcore: 'logica_hardcore',
+    logica_sobrevivencia: 'logica_sobrevivencia',
+    linguagem_facil: 'linguagem_facil',
+    linguagem_medio: 'linguagem_medio',
+    linguagem_dificil: 'linguagem_dificil',
     'caca-ao-bug': 'caca-ao-bug',
     'caca-ao-bug-hard-mode': 'caca-ao-bug-hard-mode',
   }
 
   return labels[mode]
 }
-
