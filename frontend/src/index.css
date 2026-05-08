@@ -123,8 +123,10 @@
 }
 
 .protocol-mode-shell {
-  position: relative;
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
   padding: 24px;
   overflow: hidden;
   background:
@@ -136,9 +138,12 @@
 .protocol-mode-frame {
   position: relative;
   z-index: 2;
-  min-height: calc(100vh - 48px);
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   border: 1px solid rgba(217, 211, 200, 0.18);
   background: rgba(2, 2, 2, 0.92);
   box-shadow:
@@ -192,9 +197,18 @@
 .protocol-mode-console,
 .protocol-boot-sequence {
   flex: 1;
+  min-height: 0;
+}
+
+.protocol-mode-console {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.protocol-boot-sequence {
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .protocol-boot-sequence {
@@ -217,10 +231,11 @@
 }
 
 .protocol-history {
-  flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 22px 22px 10px;
+  overflow-x: hidden;
+  padding: 22px 22px 16px;
+  scroll-behavior: auto;
 }
 
 .protocol-history-line {
@@ -260,8 +275,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
   padding: 16px 22px 20px;
   border-top: 1px solid rgba(217, 211, 200, 0.12);
+  background: rgba(2, 2, 2, 0.98);
 }
 
 .protocol-input-prompt {
@@ -1110,7 +1127,8 @@
   }
 
   .protocol-mode-frame {
-    min-height: 100vh;
+    min-height: 0;
+    height: 100%;
     border-left: 0;
     border-right: 0;
   }
@@ -1136,3 +1154,4 @@
     align-items: flex-start;
   }
 }
+
