@@ -26,7 +26,7 @@ function HomePage({ operator, onEnterTerminalMode }: HomePageProps) {
 
   return (
     <PageFrame className="codado-home">
-      <HeroPanel onEnterTerminalMode={() => onEnterTerminalMode?.()} />
+      <HeroPanel operator={operator} onEnterTerminalMode={() => onEnterTerminalMode?.()} />
 
       <section id="codado-trilhas" className="terminal-panel codado-trilhas" aria-label="Available tracks">
         <div className="codado-panel-head">

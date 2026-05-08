@@ -1,5 +1,5 @@
-import type { OperatorSessionSnapshot } from '../types'
-import { getRankProgress } from '../lib/terminalShared'
+import { useEffect, useState } from 'react'
+import { BUILD_LABEL, NODE_LABEL, PROTOCOL_LABEL } from '../lib/buildInfo'
 
 type SidebarItemId = 'home' | 'trilhas' | 'ranking' | 'perfil' | 'protocolos' | 'configs'
 
@@ -19,7 +19,6 @@ const ITEMS: SidebarItem[] = [
 ]
 
 interface SidebarProps {
-  operator: OperatorSessionSnapshot
   activeItem?: SidebarItemId
   onNavigateHome: () => void
   onNavigateRanking: () => void
@@ -28,16 +27,25 @@ interface SidebarProps {
 }
 
 function Sidebar({
-  operator,
   activeItem = 'home',
   onNavigateHome,
   onNavigateRanking,
   onNavigateTerminal,
   onScrollTo,
 }: SidebarProps) {
-  const progress = getRankProgress(operator.xp)
-  const xpDenominator = progress.nextMinXp ?? progress.currentMinXp
-  const xpPercent = progress.progressPct
+  const [now, setNow] = useState(() => new Date())
+  const [bootAt] = useState(() => Date.now())
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const uptimeSeconds = Math.max(0, Math.floor((now.getTime() - bootAt) / 1000))
+  const uptimeLabel = now
+    .toLocaleTimeString('pt-BR', { hour12: false })
+    .split(':')
+    .join(':')
 
   const handleItem = (id: SidebarItemId) => {
     if (id === 'home') {
@@ -87,22 +95,21 @@ function Sidebar({
         </nav>
 
         <div className="codado-sidebar-status terminal-panel">
-          <p className="codado-sidebar-status-title">STATUS</p>
+          <p className="codado-sidebar-status-title">SYSTEM</p>
           <p className="codado-sidebar-status-line">
-            <span className="ascii-muted">OPERATOR:</span> UNKNOWN
+            <span className="ascii-muted">BUILD:</span> <span className="codado-green">{BUILD_LABEL}</span>
           </p>
           <p className="codado-sidebar-status-line">
-            <span className="ascii-muted">RANK:</span> <span className="codado-green">{progress.currentRank}</span>
+            <span className="ascii-muted">NODE:</span> <span className="codado-green">{NODE_LABEL}</span>
           </p>
           <p className="codado-sidebar-status-line">
-            <span className="ascii-muted">XP:</span> {operator.xp} / {xpDenominator}
+            <span className="ascii-muted">PROTOCOL:</span> <span className="codado-green">{PROTOCOL_LABEL}</span>
           </p>
-          <div className="codado-sidebar-xpbar" aria-hidden="true">
-            <div className="codado-sidebar-xpbar-fill" style={{ width: `${xpPercent}%` }} />
-          </div>
           <p className="codado-sidebar-status-line">
-            <span className="ascii-muted">NEXT:</span>{' '}
-            {progress.nextRank ? `${progress.nextRank} (${progress.remainingXp} XP)` : 'MAX ACCESS'}
+            <span className="ascii-muted">UPTIME:</span>{' '}
+            <span className="codado-green">
+              {uptimeLabel} ({uptimeSeconds}s)
+            </span>
           </p>
         </div>
       </div>

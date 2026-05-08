@@ -1,25 +1,15 @@
-import { useEffect, useState } from 'react'
-import { BUILD_LABEL, NODE_LABEL, PROTOCOL_LABEL } from '../lib/buildInfo'
+import { getRankProgress } from '../lib/terminalShared'
+import type { OperatorSessionSnapshot } from '../types'
 import TypewriterText from './TypewriterText'
 
 interface HeroPanelProps {
+  operator: OperatorSessionSnapshot
   onEnterTerminalMode: () => void
 }
 
-function HeroPanel({ onEnterTerminalMode }: HeroPanelProps) {
-  const [now, setNow] = useState(() => new Date())
-  const [bootAt] = useState(() => Date.now())
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 1000)
-    return () => window.clearInterval(timer)
-  }, [])
-
-  const uptimeSeconds = Math.max(0, Math.floor((now.getTime() - bootAt) / 1000))
-  const uptimeLabel = now
-    .toLocaleTimeString('pt-BR', { hour12: false })
-    .split(':')
-    .join(':')
+function HeroPanel({ operator, onEnterTerminalMode }: HeroPanelProps) {
+  const progress = getRankProgress(operator.xp)
+  const xpDenominator = progress.nextMinXp ?? progress.currentMinXp
 
   return (
     <section className="codado-hero terminal-panel scanline" aria-label="System overview">
@@ -60,23 +50,22 @@ function HeroPanel({ onEnterTerminalMode }: HeroPanelProps) {
         </div>
 
         <div className="codado-hero-right terminal-panel">
-          <p className="codado-hero-techline">
-            <span className="ascii-muted">BUILD</span>
-            <span className="codado-green">{BUILD_LABEL}</span>
+          <p className="codado-sidebar-status-title">STATUS</p>
+          <p className="codado-sidebar-status-line">
+            <span className="ascii-muted">OPERATOR:</span> UNKNOWN
           </p>
-          <p className="codado-hero-techline">
-            <span className="ascii-muted">NODE</span>
-            <span className="codado-green">{NODE_LABEL}</span>
+          <p className="codado-sidebar-status-line">
+            <span className="ascii-muted">RANK:</span> <span className="codado-green">{progress.currentRank}</span>
           </p>
-          <p className="codado-hero-techline">
-            <span className="ascii-muted">PROTOCOL</span>
-            <span className="codado-green">{PROTOCOL_LABEL}</span>
+          <p className="codado-sidebar-status-line">
+            <span className="ascii-muted">XP:</span> {operator.xp} / {xpDenominator}
           </p>
-          <p className="codado-hero-techline">
-            <span className="ascii-muted">UPTIME</span>
-            <span className="codado-green">
-              {uptimeLabel} ({uptimeSeconds}s)
-            </span>
+          <div className="codado-sidebar-xpbar codado-hero-status-bar" aria-hidden="true">
+            <div className="codado-sidebar-xpbar-fill" style={{ width: `${progress.progressPct}%` }} />
+          </div>
+          <p className="codado-sidebar-status-line">
+            <span className="ascii-muted">NEXT:</span>{' '}
+            {progress.nextRank ? `${progress.nextRank} (${progress.remainingXp} XP)` : 'MAX ACCESS'}
           </p>
         </div>
       </div>

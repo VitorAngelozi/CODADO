@@ -215,7 +215,6 @@ function App() {
           <Topbar operator={operatorSnapshot} onEnterTerminalMode={() => navigate('/terminal')} />
           <div className="codado-appshell-body">
             <Sidebar
-              operator={operatorSnapshot}
               activeItem={
                 location.pathname === '/ranking'
                   ? 'ranking'
