@@ -1,24 +1,19 @@
 {
-  "name": "qiabaco-backend",
+  "name": "codado-monorepo",
+  "private": true,
   "version": "1.0.0",
-  "description": "Backend Node.js + Express para o projeto Codado",
-  "main": "dist/server.js",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "start": "node dist/server.js",
-    "dev": "tsx watch server.ts"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "build": "npm run build --workspace=apps/backend && npm run build --workspace=apps/frontend",
+    "typecheck": "npm run typecheck --workspace=apps/backend && npm run typecheck --workspace=apps/frontend",
+    "lint": "npm run lint --workspace=apps/frontend"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.10.1",
-    "nodemon": "^3.1.10",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "concurrently": "^9.2.1"
   }
 }

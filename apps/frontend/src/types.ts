@@ -8,7 +8,7 @@ import type {
   SubmitAnswersResponse,
   BugHuntRunResponse,
   BugHuntRunStatus,
-} from '../../shared/contracts'
+} from '../../backend/shared/contracts'
 
 export type QuizLevelId = 'easy' | 'medium' | 'hard' | 'hardcore' | 'survival'
 export type GuessLanguageLevelId = 'easy' | 'medium' | 'hard'

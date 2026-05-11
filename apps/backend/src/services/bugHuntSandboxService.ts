@@ -10,7 +10,18 @@ import type {
 } from '../types/backend';
 
 const RUNNER_IMAGE = process.env.BUG_HUNT_RUNNER_IMAGE || 'codado-bughunt-runner:local';
-const SANDBOX_HOST_PREFIX = process.env.SANDBOX_HOST_PREFIX || '/codado-sandbox';
+// Where the API writes the sandbox files (submission.py, runner.py).
+// This path is local to the machine/process running the API.
+const SANDBOX_WORK_ROOT =
+  process.env.SANDBOX_WORK_ROOT ||
+  (process.platform === 'win32' ? 'C:\\mnt\\sandbox' : '/mnt/sandbox');
+
+// Host path prefix used for `docker run -v <host_path>:/sandbox`.
+// If the API runs on the host, default to SANDBOX_WORK_ROOT (Windows).
+// If the API runs in a container, set this env var to a host-visible path that maps to the shared volume.
+const SANDBOX_HOST_PREFIX =
+  process.env.SANDBOX_HOST_PREFIX ||
+  (process.platform === 'win32' ? SANDBOX_WORK_ROOT : '/codado-sandbox');
 const CODE_MAX_LENGTH = 12000;
 const EXEC_TIMEOUT_MS = Number(process.env.BUG_HUNT_EXEC_TIMEOUT_MS || 2000);
 
@@ -64,13 +75,15 @@ export async function runBugHuntInSandbox({
   }
 
   const sandboxId = `codado_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-  const sandboxDir = `/mnt/sandbox/${sandboxId}`;
+  const sandboxDir = path.join(SANDBOX_WORK_ROOT, sandboxId);
 
   try {
     // Criar diretório no volume compartilhado
     await fs.mkdir(sandboxDir, { recursive: true });
     await fs.writeFile(path.join(sandboxDir, 'submission.py'), code, 'utf8');
     await fs.writeFile(path.join(sandboxDir, 'runner.py'), buildRunnerScript(challenge), 'utf8');
+
+    const hostSandboxPath = path.join(SANDBOX_HOST_PREFIX, sandboxId);
 
     const dockerArgs = [
       'run',
@@ -91,7 +104,7 @@ export async function runBugHuntInSandbox({
       '--cap-drop',
       'ALL',
       '-v',
-      `${SANDBOX_HOST_PREFIX}/${sandboxId}:/sandbox:ro`,
+      `${hostSandboxPath}:/sandbox:ro`,
       RUNNER_IMAGE,
       'python',
       '/sandbox/runner.py',

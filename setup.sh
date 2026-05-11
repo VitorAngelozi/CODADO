@@ -32,8 +32,8 @@ else
 fi
 echo ""
 
-echo "4. Validando compilacao TypeScript..."
-if npm run build; then
+echo "4. Validando compilacao TypeScript e build do monorepo..."
+if npm run typecheck && npm run build; then
     echo "Build concluido"
 else
     echo "Falha no build"
@@ -42,5 +42,6 @@ fi
 echo ""
 
 echo "5. Proximos passos:"
-echo "   npm run dev"
+echo "   npm run dev:backend"
+echo "   npm run dev:frontend"
 echo "   curl http://localhost:8080/health"

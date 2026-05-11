@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ResultCard from '../components/ResultCard'
+import { getTrackRouteFromMode } from '../lib/terminalShared'
 import type { QuizResult, ResultPageState, TerminalStartModeId } from '../types'
 
 interface ResultPageProps {
@@ -29,7 +30,11 @@ function ResultPage({ onRecordResult }: ResultPageProps) {
 
   return (
     <div className="relative">
-      <ResultCard result={state.result} onRetry={() => navigate(state.retryPath)} onBack={() => navigate('/')} />
+      <ResultCard
+        result={state.result}
+        onRetry={() => navigate(state.retryPath)}
+        onBack={() => navigate(getTrackRouteFromMode(state.sessionMode))}
+      />
     </div>
   )
 }

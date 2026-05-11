@@ -152,7 +152,7 @@ function BugHuntPage() {
   return (
     <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto w-full max-w-4xl space-y-5">
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/trilhas/depuracao')}
         className="terminal-panel w-fit px-4 py-2 text-xs font-bold tracking-[0.12em] text-[var(--text)] transition duration-200 hover:border-[var(--accent)] hover:bg-[rgba(217,211,200,0.08)] hover:shadow-[0_0_0_1px_rgba(217,211,200,0.35)] focus-visible:outline-none focus-visible:border-[var(--accent)]"
       >
         VOLTAR

@@ -2,6 +2,8 @@ import type { GuessLanguageLevelId, QuizLevelId, TerminalRank, TerminalStartMode
 
 export const ROOT_TERMINAL_PATH = ['codado'] as const
 
+type TrackRoute = '/trilhas/logica' | '/trilhas/depuracao' | '/trilhas/linguagem' | '/'
+
 export const QUIZ_LEVEL_TO_TERMINAL_MODE: Record<QuizLevelId, TerminalStartModeId> = {
   easy: 'logica_facil',
   medium: 'logica_medio',
@@ -124,6 +126,21 @@ export function getModeFromLocation(pathname: string): TerminalStartModeId | nul
   if (pathname === '/bug-hunt/hard') return 'caca-ao-bug-hard-mode'
 
   return null
+}
+
+export function getTrackRouteFromLocation(pathname: string): TrackRoute {
+  if (pathname.startsWith('/quiz/')) return '/trilhas/logica'
+  if (pathname.startsWith('/bug-hunt/')) return '/trilhas/depuracao'
+  if (pathname.startsWith('/guess-language/')) return '/trilhas/linguagem'
+  return '/'
+}
+
+export function getTrackRouteFromMode(mode: TerminalStartModeId | null): TrackRoute {
+  if (!mode) return '/'
+  if (mode.startsWith('logica_')) return '/trilhas/logica'
+  if (mode.startsWith('linguagem_')) return '/trilhas/linguagem'
+  if (mode === 'caca-ao-bug' || mode === 'caca-ao-bug-hard-mode') return '/trilhas/depuracao'
+  return '/'
 }
 
 export function formatTerminalModeLabel(mode: TerminalStartModeId | null): string {
