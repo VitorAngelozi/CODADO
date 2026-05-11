@@ -4,10 +4,10 @@ import { motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { BUG_HUNT_MODES, getBugHuntMode } from '../data/bugHuntChallenges'
+import { API_BASE_URL } from '../lib/api'
 import type { BugHuntRunResponse } from '../types'
 
 const INDENT = '    '
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 function BugHuntPage() {
   const navigate = useNavigate()

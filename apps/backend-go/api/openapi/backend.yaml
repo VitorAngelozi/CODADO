@@ -1,0 +1,226 @@
+openapi: 3.1.0
+info:
+  title: Codado Backend API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          description: API healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+  /levels:
+    get:
+      operationId: getLevels
+      responses:
+        "200":
+          description: Quiz levels
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [levels]
+                properties:
+                  levels:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ApiLevel"
+  /questions:
+    get:
+      operationId: getQuestions
+      parameters:
+        - in: query
+          name: level
+          schema:
+            $ref: "#/components/schemas/ApiQuizLevelId"
+      responses:
+        "200":
+          description: Current and legacy quiz payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionsResponse"
+  /submit:
+    post:
+      operationId: submitAnswers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitAnswersRequest"
+      responses:
+        "200":
+          description: Quiz score summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitAnswersResponse"
+  /bug-hunt/run:
+    post:
+      operationId: runBugHunt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BugHuntRunRequest"
+      responses:
+        "200":
+          description: Sandbox execution result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BugHuntRunResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BugHuntRunResponse"
+components:
+  schemas:
+    ApiQuizLevelId:
+      type: string
+      enum: [easy, medium, hard]
+    ApiLevel:
+      type: object
+      required: [id, nome, desc]
+      properties:
+        id:
+          $ref: "#/components/schemas/ApiQuizLevelId"
+        nome:
+          type: string
+        desc:
+          type: string
+    ApiQuestion:
+      type: object
+      required: [id, question, code, options, answer, explanation]
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+        code:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        answer:
+          type: integer
+        explanation:
+          type: string
+    LegacyQuestion:
+      type: object
+      required: [id, enunciar, opcoes, resposta]
+      properties:
+        id:
+          type: string
+        enunciar:
+          type: string
+        opcoes:
+          type: array
+          items:
+            type: string
+        resposta:
+          type: string
+    QuestionsResponse:
+      type: object
+      required: [level, total, perguntas, questions]
+      properties:
+        level:
+          type: string
+        total:
+          type: integer
+        perguntas:
+          type: array
+          items:
+            $ref: "#/components/schemas/LegacyQuestion"
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiQuestion"
+    SubmitAnswerItem:
+      type: object
+      required: [id, answer]
+      properties:
+        id:
+          type: string
+        answer:
+          type: integer
+    LegacySubmitAnswerItem:
+      type: object
+      required: [pergunta_id, opcao]
+      properties:
+        pergunta_id:
+          type: string
+        opcao:
+          type: string
+    SubmitAnswersRequest:
+      type: object
+      properties:
+        level:
+          type: string
+        respostas:
+          type: array
+          items:
+            $ref: "#/components/schemas/LegacySubmitAnswerItem"
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubmitAnswerItem"
+    SubmitAnswersResponse:
+      type: object
+      required: [acertos, total, pontuacao, percentual, mensagem]
+      properties:
+        acertos:
+          type: integer
+        total:
+          type: integer
+        pontuacao:
+          type: integer
+        percentual:
+          type: number
+        mensagem:
+          type: string
+    BugHuntRunRequest:
+      type: object
+      required: [challengeId, code]
+      properties:
+        challengeId:
+          type: string
+        code:
+          type: string
+    BugHuntRunStatus:
+      type: string
+      enum: [passed, failed, timeout, runtime_error, sandbox_error]
+    BugHuntRunTests:
+      type: object
+      required: [passed, total]
+      properties:
+        passed:
+          type: integer
+        total:
+          type: integer
+    BugHuntRunResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/BugHuntRunStatus"
+        details:
+          type: string
+        tests:
+          $ref: "#/components/schemas/BugHuntRunTests"

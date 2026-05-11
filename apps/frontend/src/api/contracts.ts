@@ -1,0 +1,15 @@
+import type { components } from './schema'
+
+export type ApiQuizLevelId = components['schemas']['ApiQuizLevelId']
+export type ApiLevel = components['schemas']['ApiLevel']
+export type ApiQuestion = components['schemas']['ApiQuestion']
+export type LegacyQuestion = components['schemas']['LegacyQuestion']
+export type QuestionsResponse = components['schemas']['QuestionsResponse']
+export type SubmitAnswerItem = components['schemas']['SubmitAnswerItem']
+export type LegacySubmitAnswerItem = components['schemas']['LegacySubmitAnswerItem']
+export type SubmitAnswersRequest = components['schemas']['SubmitAnswersRequest']
+export type SubmitAnswersResponse = components['schemas']['SubmitAnswersResponse']
+export type BugHuntRunRequest = components['schemas']['BugHuntRunRequest']
+export type BugHuntRunTests = components['schemas']['BugHuntRunTests']
+export type BugHuntRunResponse = components['schemas']['BugHuntRunResponse']
+export type BugHuntRunStatus = components['schemas']['BugHuntRunStatus']

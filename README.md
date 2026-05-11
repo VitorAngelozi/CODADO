@@ -2,25 +2,25 @@
 
 Estrutura oficial do projeto:
 
-- `apps/backend/` -> backend Node.js (API e sandbox runner orchestration)
+- `apps/backend-go/` -> backend oficial em Go com `chi`, sandbox Docker e testes
 - `apps/frontend/` -> app React/Vite
-- `apps/frontend/src/styles/design-system.css` -> tokens e base visual reutilizavel
-- `docker-compose.yml` e `Makefile` -> camada de orquestracao no root
+- `apps/backend-go/api/openapi/backend.yaml` -> fonte de verdade do contrato HTTP
+- `apps/frontend/src/api/schema.ts` -> tipos gerados a partir do OpenAPI
 
 ## Organizacao
 
-### Backend
-- `apps/backend/src/controllers` controladores HTTP
-- `apps/backend/src/routes` rotas da API
-- `apps/backend/src/data` dados dos desafios
-- `apps/backend/src/services` servicos (ex.: execucao sandbox Docker)
-- `apps/backend/src/middlewares` middlewares globais
+### Backend Go
+- `apps/backend-go/cmd/api` bootstrap do servidor
+- `apps/backend-go/internal/httpapi` rotas, middleware e handlers
+- `apps/backend-go/internal/domain` contratos e regras de negocio
+- `apps/backend-go/internal/data` dados em memoria do quiz e bug hunt
+- `apps/backend-go/internal/sandbox` orquestracao do runner Python via Docker
 
 ### Frontend
 - `apps/frontend/src/components` componentes reutilizaveis
 - `apps/frontend/src/pages` paginas por trilha/modo
-- `apps/frontend/src/data` dados consumidos no cliente
-- `apps/frontend/src/styles` base de design (cores, tipografia, classes utilitarias)
+- `apps/frontend/src/api/contracts.ts` aliases estaveis para os tipos gerados
+- `apps/frontend/src/lib/api.ts` cliente Axios usando `VITE_API_BASE_URL`
 
 ## Execucao local
 
@@ -28,39 +28,43 @@ Monorepo (root):
 
 ```bash
 npm install
-npm run dev:backend
-npm run dev:frontend
+npm run generate:api-types
+npm run dev
 npm run build
 npm run typecheck
 ```
 
-Backend (direto no app):
+Servicos:
 
 ```bash
-cd apps/backend
-npm install
-npm run dev
+npm run dev:backend:go
+npm run dev:frontend
 ```
 
-Frontend (direto no app):
+Comparacao de contratos:
+
+```bash
+npm run test:contract:live
+```
+
+`test:contract:live` so faz sentido quando voce quer comparar a API atual com outra URL externa ou legado ainda em execucao.
+
+Frontend:
 
 ```bash
 cd apps/frontend
-npm install
+npm run generate:api-types
 npm run dev
 ```
 
 Runner Python sandbox (Docker):
 
 ```bash
-docker build -f apps/backend/Dockerfile.bughunt-runner -t codado-bughunt-runner:local apps/backend
+docker build -f apps/backend-go/Dockerfile.bughunt-runner -t codado-bughunt-runner:local apps/backend-go
 ```
 
-## Nota sobre `frontend/` antigo
+## Ambiente
 
-Se ainda existir `./frontend` no root, ele pode ser um resquicio travado por processo local (Windows/IDE).
-A estrutura oficial agora e `apps/frontend`. Feche processos que estejam usando a pasta antiga e remova:
-
-```powershell
-cmd /c "rmdir /s /q C:\Users\insted\Documents\Codaco\frontend"
-```
+- `VITE_API_BASE_URL` define a URL da API consumida pelo frontend
+- `SANDBOX_HOST_PREFIX` define o caminho visivel ao Docker host para o bind mount do sandbox
+- `docker-compose.yml` sobe a API Go em `8080`

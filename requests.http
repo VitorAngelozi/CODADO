@@ -1,4 +1,4 @@
-### Exemplos de Requisições HTTP para testar a API
+### Exemplos de requisicoes HTTP para testar a API Go
 
 ### Health Check
 GET http://localhost:8080/health
@@ -6,232 +6,123 @@ Content-Type: application/json
 
 ###
 
-### Obter todos os níveis disponíveis
+### Obter todos os niveis disponiveis
 GET http://localhost:8080/levels
 Content-Type: application/json
 
 ###
 
-### Obter perguntas - Nível Fácil
+### Obter perguntas - Nivel Facil
 GET http://localhost:8080/questions?level=easy
 Content-Type: application/json
 
 ###
 
-### Obter perguntas - Nível Médio
+### Obter perguntas - Nivel Medio
 GET http://localhost:8080/questions?level=medium
 Content-Type: application/json
 
 ###
 
-### Obter perguntas - Nível Difícil
+### Obter perguntas - Nivel Dificil
 GET http://localhost:8080/questions?level=hard
 Content-Type: application/json
 
 ###
 
-### Submeter respostas - Exemplo com todas corretas (nível fácil)
+### Submeter respostas - Exemplo com todas corretas (nivel facil)
 POST http://localhost:8080/submit
 Content-Type: application/json
 
 {
   "level": "easy",
   "respostas": [
-    {
-      "pergunta_id": "q1_easy",
-      "opcao": "8"
-    },
-    {
-      "pergunta_id": "q2_easy",
-      "opcao": "8"
-    },
-    {
-      "pergunta_id": "q3_easy",
-      "opcao": "9"
-    },
-    {
-      "pergunta_id": "q4_easy",
-      "opcao": "9"
-    },
-    {
-      "pergunta_id": "q5_easy",
-      "opcao": "15"
-    },
-    {
-      "pergunta_id": "q6_easy",
-      "opcao": "12"
-    },
-    {
-      "pergunta_id": "q7_easy",
-      "opcao": "9"
-    },
-    {
-      "pergunta_id": "q8_easy",
-      "opcao": "15"
-    },
-    {
-      "pergunta_id": "q9_easy",
-      "opcao": "12"
-    },
-    {
-      "pergunta_id": "q10_easy",
-      "opcao": "9"
-    }
+    { "pergunta_id": "q1_easy", "opcao": "8" },
+    { "pergunta_id": "q2_easy", "opcao": "8" },
+    { "pergunta_id": "q3_easy", "opcao": "9" },
+    { "pergunta_id": "q4_easy", "opcao": "9" },
+    { "pergunta_id": "q5_easy", "opcao": "15" },
+    { "pergunta_id": "q6_easy", "opcao": "12" },
+    { "pergunta_id": "q7_easy", "opcao": "9" },
+    { "pergunta_id": "q8_easy", "opcao": "15" },
+    { "pergunta_id": "q9_easy", "opcao": "12" },
+    { "pergunta_id": "q10_easy", "opcao": "9" }
   ]
 }
 
 ###
 
-### Submeter respostas - Exemplo com algumas erradas (nível fácil)
+### Submeter respostas - Exemplo com algumas erradas (nivel facil)
 POST http://localhost:8080/submit
 Content-Type: application/json
 
 {
   "level": "easy",
   "respostas": [
-    {
-      "pergunta_id": "q1_easy",
-      "opcao": "7"
-    },
-    {
-      "pergunta_id": "q2_easy",
-      "opcao": "8"
-    },
-    {
-      "pergunta_id": "q3_easy",
-      "opcao": "8"
-    },
-    {
-      "pergunta_id": "q4_easy",
-      "opcao": "9"
-    },
-    {
-      "pergunta_id": "q5_easy",
-      "opcao": "16"
-    },
-    {
-      "pergunta_id": "q6_easy",
-      "opcao": "12"
-    },
-    {
-      "pergunta_id": "q7_easy",
-      "opcao": "10"
-    },
-    {
-      "pergunta_id": "q8_easy",
-      "opcao": "15"
-    },
-    {
-      "pergunta_id": "q9_easy",
-      "opcao": "12"
-    },
-    {
-      "pergunta_id": "q10_easy",
-      "opcao": "8"
-    }
+    { "pergunta_id": "q1_easy", "opcao": "7" },
+    { "pergunta_id": "q2_easy", "opcao": "8" },
+    { "pergunta_id": "q3_easy", "opcao": "8" },
+    { "pergunta_id": "q4_easy", "opcao": "9" },
+    { "pergunta_id": "q5_easy", "opcao": "16" },
+    { "pergunta_id": "q6_easy", "opcao": "12" },
+    { "pergunta_id": "q7_easy", "opcao": "10" },
+    { "pergunta_id": "q8_easy", "opcao": "15" },
+    { "pergunta_id": "q9_easy", "opcao": "12" },
+    { "pergunta_id": "q10_easy", "opcao": "8" }
   ]
 }
 
 ###
 
-### Submeter respostas - Nível Médio
+### Submeter respostas - Nivel Medio
 POST http://localhost:8080/submit
 Content-Type: application/json
 
 {
   "level": "medium",
   "respostas": [
-    {
-      "pergunta_id": "q1_medium",
-      "opcao": "20"
-    },
-    {
-      "pergunta_id": "q2_medium",
-      "opcao": "6"
-    },
-    {
-      "pergunta_id": "q3_medium",
-      "opcao": "21"
-    },
-    {
-      "pergunta_id": "q4_medium",
-      "opcao": "6"
-    },
-    {
-      "pergunta_id": "q5_medium",
-      "opcao": "40"
-    },
-    {
-      "pergunta_id": "q6_medium",
-      "opcao": "10"
-    },
-    {
-      "pergunta_id": "q7_medium",
-      "opcao": "54"
-    },
-    {
-      "pergunta_id": "q8_medium",
-      "opcao": "7"
-    },
-    {
-      "pergunta_id": "q9_medium",
-      "opcao": "36"
-    },
-    {
-      "pergunta_id": "q10_medium",
-      "opcao": "10"
-    }
+    { "pergunta_id": "q1_medium", "opcao": "20" },
+    { "pergunta_id": "q2_medium", "opcao": "6" },
+    { "pergunta_id": "q3_medium", "opcao": "21" },
+    { "pergunta_id": "q4_medium", "opcao": "6" },
+    { "pergunta_id": "q5_medium", "opcao": "40" },
+    { "pergunta_id": "q6_medium", "opcao": "10" },
+    { "pergunta_id": "q7_medium", "opcao": "54" },
+    { "pergunta_id": "q8_medium", "opcao": "7" },
+    { "pergunta_id": "q9_medium", "opcao": "36" },
+    { "pergunta_id": "q10_medium", "opcao": "10" }
   ]
 }
 
 ###
 
-### Submeter respostas - Nível Difícil
+### Submeter respostas - Nivel Dificil
 POST http://localhost:8080/submit
 Content-Type: application/json
 
 {
   "level": "hard",
   "respostas": [
-    {
-      "pergunta_id": "q1_hard",
-      "opcao": "16"
-    },
-    {
-      "pergunta_id": "q2_hard",
-      "opcao": "20"
-    },
-    {
-      "pergunta_id": "q3_hard",
-      "opcao": "8"
-    },
-    {
-      "pergunta_id": "q4_hard",
-      "opcao": "18"
-    },
-    {
-      "pergunta_id": "q5_hard",
-      "opcao": "40"
-    },
-    {
-      "pergunta_id": "q6_hard",
-      "opcao": "24"
-    },
-    {
-      "pergunta_id": "q7_hard",
-      "opcao": "45"
-    },
-    {
-      "pergunta_id": "q8_hard",
-      "opcao": "30"
-    },
-    {
-      "pergunta_id": "q9_hard",
-      "opcao": "46"
-    },
-    {
-      "pergunta_id": "q10_hard",
-      "opcao": "30"
-    }
+    { "pergunta_id": "q1_hard", "opcao": "16" },
+    { "pergunta_id": "q2_hard", "opcao": "20" },
+    { "pergunta_id": "q3_hard", "opcao": "8" },
+    { "pergunta_id": "q4_hard", "opcao": "18" },
+    { "pergunta_id": "q5_hard", "opcao": "40" },
+    { "pergunta_id": "q6_hard", "opcao": "24" },
+    { "pergunta_id": "q7_hard", "opcao": "45" },
+    { "pergunta_id": "q8_hard", "opcao": "30" },
+    { "pergunta_id": "q9_hard", "opcao": "46" },
+    { "pergunta_id": "q10_hard", "opcao": "30" }
   ]
+}
+
+###
+
+### Bug Hunt - execucao simples
+POST http://localhost:8080/bug-hunt/run
+Content-Type: application/json
+
+{
+  "challengeId": "bug_normal_02",
+  "code": "def maior(a, b):\n    if a > b:\n        return a\n    return b"
 }

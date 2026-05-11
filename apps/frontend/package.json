@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "generate:api-types": "npx openapi-typescript ../backend-go/api/openapi/backend.yaml -o src/api/schema.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -28,6 +29,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "openapi-typescript": "^7.10.1",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",

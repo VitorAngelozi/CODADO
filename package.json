@@ -3,14 +3,21 @@
   "private": true,
   "version": "1.0.0",
   "workspaces": [
-    "apps/*"
+    "apps/frontend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend:go\" \"npm run dev:frontend\"",
     "dev:frontend": "npm run dev --workspace=apps/frontend",
-    "dev:backend": "npm run dev --workspace=apps/backend",
-    "build": "npm run build --workspace=apps/backend && npm run build --workspace=apps/frontend",
-    "typecheck": "npm run typecheck --workspace=apps/backend && npm run typecheck --workspace=apps/frontend",
+    "dev:backend": "npm run dev:backend:go",
+    "dev:backend:go": "cd apps/backend-go && go run ./cmd/api",
+    "build": "npm run generate:api-types && npm run build:backend:go && npm run build --workspace=apps/frontend",
+    "build:backend:go": "cd apps/backend-go && go build ./...",
+    "typecheck": "npm run generate:api-types && npm run build:backend:go && npm run typecheck --workspace=apps/frontend",
+    "test": "npm run test:backend:go && npm run typecheck",
+    "test:backend:go": "if not exist apps\\backend-go\\.gotmp mkdir apps\\backend-go\\.gotmp && set GOTMPDIR=%cd%\\apps\\backend-go\\.gotmp&& cd apps/backend-go && go test ./...",
+    "test:contract": "node scripts/compare-backends.mjs",
+    "test:contract:live": "node scripts/compare-backends.mjs",
+    "generate:api-types": "npm run generate:api-types --workspace=apps/frontend",
     "lint": "npm run lint --workspace=apps/frontend"
   },
   "devDependencies": {
