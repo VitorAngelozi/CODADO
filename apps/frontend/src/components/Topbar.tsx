@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { OperatorSessionSnapshot } from '../types'
 import { BUILD_LABEL, NODE_LABEL, PROTOCOL_LABEL } from '../lib/buildInfo'
+import type { AuthUser } from '../lib/api'
 
 function formatTime(date: Date) {
   return date.toLocaleTimeString('pt-BR', { hour12: false })
@@ -8,10 +9,12 @@ function formatTime(date: Date) {
 
 interface TopbarProps {
   operator: OperatorSessionSnapshot
+  user: AuthUser
   onEnterTerminalMode: () => void
+  onLogout: () => void
 }
 
-function Topbar({ operator, onEnterTerminalMode }: TopbarProps) {
+function Topbar({ operator, user, onEnterTerminalMode, onLogout }: TopbarProps) {
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
@@ -46,6 +49,10 @@ function Topbar({ operator, onEnterTerminalMode }: TopbarProps) {
 
         <div className="codado-topbar-right">
           <span className="codado-topbar-time">{formatTime(now)}</span>
+          <span className="codado-topbar-protocol ascii-muted">{user.name}</span>
+          <button type="button" className="codado-topbar-cta terminal-panel" onClick={onLogout}>
+            SAIR
+          </button>
           <button type="button" className="codado-topbar-cta terminal-panel" onClick={onEnterTerminalMode}>
             {'>_ TERMINAL MODE'}
           </button>

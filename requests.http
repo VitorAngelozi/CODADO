@@ -1,3 +1,30 @@
+### Health
+GET http://localhost:8080/health
+
+### Cadastro (o cliente HTTP deve manter cookies)
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "name": "Operador Codado",
+  "email": "operador@example.com",
+  "password": "senha-dev-123"
+}
+
+### Login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "operador@example.com",
+  "password": "senha-dev-123"
+}
+
+### Sessao atual
+GET http://localhost:8080/auth/me
+
+### Logout
+POST http://localhost:8080/auth/logout
 ### Exemplos de requisicoes HTTP para testar a API Go
 
 ### Health Check

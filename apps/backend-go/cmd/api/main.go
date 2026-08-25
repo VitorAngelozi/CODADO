@@ -13,10 +13,19 @@ import (
 	"codado/backendgo/internal/data"
 	"codado/backendgo/internal/httpapi"
 	"codado/backendgo/internal/sandbox"
+	"codado/backendgo/internal/auth"
 )
 
 func main() {
 	cfg := config.Load()
+	dbCtx, dbCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer dbCancel()
+	authStore, err := auth.NewStore(dbCtx, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("falha ao conectar ao PostgreSQL: %v", err)
+	}
+	defer authStore.Close()
+
 	sandboxService := sandbox.NewService(cfg)
 	server := httpapi.NewServer(
 		cfg,
@@ -25,6 +34,7 @@ func main() {
 		data.BugHuntChallenges(),
 		sandboxService,
 	)
+	server.SetAuthStore(authStore)
 
 	httpServer := &http.Server{
 		Addr:              cfg.ListenAddress(),

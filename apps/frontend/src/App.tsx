@@ -4,6 +4,7 @@ import FooterBar from './components/FooterBar'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import TypewriterText from './components/TypewriterText'
+import AuthPage from './pages/AuthPage'
 import BugHuntPage from './pages/BugHuntPage'
 import GuessLanguagePage from './pages/GuessLanguagePage'
 import HomePage from './pages/HomePage'
@@ -14,6 +15,7 @@ import TrackPage from './pages/TrackPage'
 import TerminalMode from './pages/TerminalMode'
 import type { OperatorSessionSnapshot, QuizResult, TerminalStartModeId } from './types'
 import { formatTerminalModeLabel, getModeFromLocation, getTerminalRank } from './lib/terminalShared'
+import { fetchCurrentUser, logout, type AuthUser } from './lib/api'
 
 type SurvivalCrashPhase = 'idle' | 'impact' | 'reboot'
 
@@ -42,12 +44,26 @@ function App() {
   const [bugsResolved, setBugsResolved] = useState(0)
   const [lastStartedMode, setLastStartedMode] = useState<TerminalStartModeId | null>(null)
   const [modeStarts, setModeStarts] = useState<Record<TerminalStartModeId, number>>(INITIAL_MODE_STARTS)
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const isSurvivalCrashActive = survivalCrashPhase !== 'idle'
   const processedResultKeysRef = useRef<Set<string>>(new Set())
   const processedRouteKeysRef = useRef<Set<string>>(new Set())
   const activeRouteMode = useMemo(() => getModeFromLocation(location.pathname), [location.pathname])
   const currentRank = useMemo(() => getTerminalRank(sessionXp), [sessionXp])
   const isTerminalRoute = location.pathname === '/terminal'
+
+  useEffect(() => {
+    fetchCurrentUser()
+      .then(setAuthUser)
+      .catch(() => setAuthUser(null))
+      .finally(() => setAuthLoading(false))
+  }, [])
+
+  const handleLogout = async () => {
+    await logout().catch(() => undefined)
+    setAuthUser(null)
+  }
 
   useEffect(() => {
     if (survivalCrashPhase !== 'impact') return
@@ -155,6 +171,14 @@ function App() {
     [activeTrackLabel, bugsResolved, currentRank, favoriteModeLabel, sessionXp, streak],
   )
 
+  if (authLoading) {
+    return <main className="flex min-h-screen items-center justify-center font-display text-2xl tracking-[0.12em] text-[var(--accent)]">CARREGANDO SESSAO...</main>
+  }
+
+  if (!authUser) {
+    return <AuthPage onAuthenticated={setAuthUser} />
+  }
+
   const visualRoutes = (
     <Routes>
       <Route
@@ -212,7 +236,7 @@ function App() {
         <div className="relative z-10 min-h-screen">{terminalRoutes}</div>
       ) : (
         <div className={`relative z-10 min-h-screen codado-appshell ${isSurvivalCrashActive ? 'app-global-crash-targets' : ''}`}>
-          <Topbar operator={operatorSnapshot} onEnterTerminalMode={() => navigate('/terminal')} />
+          <Topbar operator={operatorSnapshot} user={authUser} onEnterTerminalMode={() => navigate('/terminal')} onLogout={handleLogout} />
           <div className="codado-appshell-body">
             <Sidebar
               activeItem={
