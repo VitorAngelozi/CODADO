@@ -77,6 +77,7 @@ docker build -f apps/backend-go/Dockerfile.bughunt-runner -t codado-bughunt-runn
 
 O ambiente local sobe PostgreSQL 16 junto com a API. O banco fica acessivel em `localhost:5432` no host:
 
+
 ```bash
 docker compose up --build
 ```
