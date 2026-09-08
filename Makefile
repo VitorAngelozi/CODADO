@@ -12,7 +12,6 @@ help:
 	@echo "make lint               - lint frontend"
 	@echo "make build-bughunt-runner - build da imagem Python sandbox"
 
-
 install:
 	npm install
 
