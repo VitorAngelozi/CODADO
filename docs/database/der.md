@@ -1,6 +1,5 @@
 # DER do CODADO
 
-
 ```mermaid
 erDiagram
     USERS ||--o{ SESSIONS : possui
